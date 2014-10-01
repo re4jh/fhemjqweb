@@ -1357,7 +1357,7 @@ FW_showRoom()
     }
     FW_pO "</table></td>" if($maxc != -1); # Column
   }
-  FW_pO "</tr>";
+  # FW_pO "</tr>";
 
   FW_pO "</table><br>";
 
