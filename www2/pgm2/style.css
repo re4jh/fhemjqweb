@@ -1,13 +1,54 @@
 @import url("defaultCommon.css");
 
-body     { font-size:16px;}
-#logo    { margin-top:10px; margin-left:20px; width:120px; height:132px;
-           background-image:url(../images/default/fhemicon.png); }
-#menu    { margin-top:10px; margin-left:20px; width:140px; }
-#hdr     { position:absolute; top:10px; left:180px; }
-#content { position:absolute; top:50px; left:180px; bottom:20px; right:10px; }
-#menuScrollArea { width: 175px; left:0px; top:0px; height:100%; 
-                  position:fixed; overflow-x:hidden; overflow-y:auto; } 
+body {
+  font-size: 16px;
+}
 
-div.dist { padding-top:0.3em; }
-button.dist { margin:10px; background:transparent; border:0px; cursor:pointer; }
+#logo {
+  background-image: url(../images/default/fhemicon.png);
+  height: 132px;
+  margin-left: 20px;
+  margin-top: 10px;
+  width: 120px;
+}
+
+#menu {
+  margin-left: 20px;
+  margin-top: 10px;
+  width: 140px;
+}
+
+#hdr {
+  left: 180px;
+  position: absolute;
+  top: 10px;
+}
+
+#content {
+  bottom: 20px;
+  left: 180px;
+  position: absolute;
+  right: 10px;
+  top: 50px;
+}
+
+#menuScrollArea {
+  height: 100%;
+  left: 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  top: 0px;
+  width: 175px;
+}
+
+div.dist {
+  padding-top: 0.3em;
+}
+
+button.dist {
+  background: transparent;
+  border: 0px;
+  cursor: pointer;
+  margin: 10px;
+}
