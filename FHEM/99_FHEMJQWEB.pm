@@ -72,7 +72,7 @@ use vars qw(%FW_hiddenroom); # hash of hidden rooms, used by weblink
 use vars qw($FW_plotmode);# Global plot mode (WEB attribute), used by SVG
 use vars qw($FW_plotsize);# Global plot size (WEB attribute), used by SVG
 use vars qw(%FW_webArgs); # all arguments specified in the GET
-use vars qw(@FW_fhemjqwebjs);# List of fhemjqweb*js scripts to load
+use vars qw(@FW_fhemwebjs);# List of fhemweb*js scripts to load
 use vars qw($FW_detail);  # currently selected device for detail view
 use vars qw($FW_cmdret);  # Returned data by the fhem call
 use vars qw($FW_room);    # currently selected room
@@ -181,7 +181,7 @@ FHEMJQWEB_Initialize($)
   $FW_cssdir   = "$FW_dir/pgm2";
   $FW_gplotdir = "$FW_dir/gplot";
   if(opendir(DH, "$FW_dir/pgm2")) {
-    @FW_fhemjqwebjs = sort grep /^fhemjqweb.*js$/, readdir(DH);
+    @FW_fhemwebjs = sort grep /^fhemweb.*js$/, readdir(DH);
     closedir(DH);
   }
 
@@ -675,7 +675,7 @@ FW_answerCall($)
   #######################
   # Other JavaScripts
   FW_pO sprintf($jsTemplate, "$FW_ME/pgm2/svg.js") if($FW_plotmode eq "SVG");
-  map { FW_pO sprintf($jsTemplate, "$FW_ME/pgm2/$_") } @FW_fhemjqwebjs;
+  map { FW_pO sprintf($jsTemplate, "$FW_ME/pgm2/$_") } @FW_fhemwebjs;
 
   $jsTemplate = '<script attr=\'%s\' type="text/javascript" src="%s"></script>';
   map {
