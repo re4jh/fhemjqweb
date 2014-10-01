@@ -656,6 +656,7 @@ FW_answerCall($)
 
   my $cssTemplate = "<link href=\"$FW_ME/%s\" rel=\"stylesheet\"/>";
   FW_pO sprintf($cssTemplate, "pgm2/style.css");
+  FW_pO sprintf($cssTemplate, "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
   my @cssFiles = split(" ", AttrVal($FW_wname, "CssFiles", ""));
   map { FW_pO sprintf($cssTemplate, $_); } @cssFiles;
 
