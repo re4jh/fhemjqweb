@@ -656,7 +656,7 @@ FW_answerCall($)
 
   my $cssTemplate = "<link href=\"$FW_ME/%s\" rel=\"stylesheet\"/>";
   FW_pO sprintf($cssTemplate, "pgm2/style.css");
-  FW_pO sprintf($cssTemplate, "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
+  FW_pO "<link href=\"//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css\" rel=\"stylesheet\"/>";
   my @cssFiles = split(" ", AttrVal($FW_wname, "CssFiles", ""));
   map { FW_pO sprintf($cssTemplate, $_); } @cssFiles;
 
@@ -1216,8 +1216,11 @@ FW_roomOverview($)
 
         # Force external browser if FHEMJQWEB is installed as an offline app.
         if($l2 =~ m/.html$/ || $l2 =~ m/^http/) {
+		  $icon = FW_makeImage('Link','Link',"icon")."&nbsp;";		
            FW_pO "<td><div><a href=\"$l2\">$icon$l1</a></div></td>";
         } else {
+		  $icon = FW_makeImage('Save','Save',"icon")."&nbsp;" if ($l1 eq "Save config");
+		  $icon = FW_makeImage('List','List',"icon")."&nbsp;" if ($icon eq "");
           FW_pH $l2, "$icon$l1", 1;
         }
         FW_pO "</tr>";
@@ -1851,6 +1854,13 @@ FW_makeImage(@)
 {
   my ($name, $txt, $class)= @_;
 
+  return "<i class=\"fa fa-globe\" style=\"width: 16px; height: 16px;\"></i>" if($name eq "icoEverything" && $class eq "icon");
+  return "<i class=\"fa fa-link\"  style=\"width: 16px; height: 16px;\"></i>" if($name eq "Link" && $class eq "icon");
+  return "<i class=\"fa fa-list\"  style=\"width: 16px; height: 16px;\"></i>" if($name eq "List" && $class eq "icon");
+  return "<i class=\"fa fa-floppy-o\"  style=\"width: 16px; height: 16px;\"></i>" if($name eq "Save");
+  # return "<pre>Name: $name Txt: $txt Class: $class</pre>";
+  
+
   $txt = $name if(!defined($txt));
   $class = "" if(!$class);
   $class = "$class $name";
@@ -1884,7 +1894,7 @@ FW_makeImage(@)
     }
   } else {
     $class = "class='$class'" if($class);
-    return "<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\">";
+    return "<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />";
   }
 }
 
