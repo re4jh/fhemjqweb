@@ -1,13 +1,11 @@
 @import url("darkCommon.css");
 
-/* Author: Till */
+/* Author: Till, Jonas */
 body {
   background-color: #444444;
-  background-image: url(../images/default/fhemicon_dark.png);
   background-repeat: no-repeat;
   color: #CCCCCC;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
 }
 
 #logo {
@@ -19,10 +17,9 @@ body {
 }
 
 #menu {
+  margin-left: 1%;
   position: absolute;
-  top: 170px;
-  left: 20px;
-  width: 140px;
+  width: 15%;
 }
 
 #console {
@@ -33,17 +30,16 @@ body {
 }
 
 #hdr {
-  position: absolute;
-  top: 10px;
-  left: 180px;
+  float: right;
+  margin-right: 1%;
+  position: relative;
+  width: 80%;
 }
 
 #content {
-  position: absolute;
-  top: 50px;
-  left: 180px;
-  bottom: 20px;
-  right: 10px;
+  float: right;
+  margin-right: 1%;
+  width: 79%;
 }
 
 #errmsg {
@@ -90,23 +86,16 @@ table {
   padding-top: 6px;
 }
 
-table.room {
-  background: #111111;
-  width: 140px;
-  border: 1px solid #CCCCCC;
-  box-shadow: 5px 5px 5px #000;
-}
-
-table.room a {
+div.room a {
   color: #CCCCCC;
   text-decoration: none;
 }
 
-table.room a:hover {
+div.room a:hover {
   color: #ffffff;
 }
 
-table.room tr.sel {
+div.room li.sel {
   background: red;
 }
 
@@ -133,10 +122,6 @@ input {
   margin-left: 10px;
   border-radius: 8px;
   box-shadow: 5px 5px 5px #000000;
-}
-
-input:focus {
-  border: 1px solid red;
 }
 
 input:disabled {
@@ -331,4 +316,26 @@ g.on {
 
 .changed {
   color: red;
+}
+
+div.room > ul {
+  list-style: none outside none;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+fieldset {
+  border: medium none;
+  margin: 0;
+  padding: 0;
+}
+
+input.maininput {
+  margin: 0;
+}
+
+div#menu_bar ul {
+  list-style: none outside none;
+  margin: 0;
+  padding: 0;
 }
