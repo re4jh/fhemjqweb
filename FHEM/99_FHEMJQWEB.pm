@@ -657,6 +657,7 @@ FW_answerCall($)
   my $cssTemplate = "<link href=\"$FW_ME/%s\" rel=\"stylesheet\"/>";
   FW_pO sprintf($cssTemplate, "pgm2/style.css");
   FW_pO "<link href=\"//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css\" rel=\"stylesheet\"/>";
+  FW_pO "<link href=\"//code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css\" rel=\"stylesheet\" />";  
   my @cssFiles = split(" ", AttrVal($FW_wname, "CssFiles", ""));
   map { FW_pO sprintf($cssTemplate, $_); } @cssFiles;
 
@@ -675,6 +676,10 @@ FW_answerCall($)
 
   #######################
   # Other JavaScripts
+  
+  FW_pO "<script src=\"//code.jquery.com/jquery-1.7.1.min.js\" type=\"text/javascript\"></script>";
+  FW_pO "<script src=\"//code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js\" type=\"text/javascript\"></script>";
+
   FW_pO sprintf($jsTemplate, "$FW_ME/pgm2/svg.js") if($FW_plotmode eq "SVG");
   map { FW_pO sprintf($jsTemplate, "$FW_ME/pgm2/$_") } @FW_fhemwebjs;
 
@@ -687,7 +692,8 @@ FW_answerCall($)
   my $onload = AttrVal($FW_wname, "longpoll", 1) ?
                       "onload=\"FW_delayedStart()\"" : "";
   my $csrf= ($FW_CSRF ? "fwcsrf='$defs{$FW_wname}{CSRFTOKEN}'" : "");
-  FW_pO "</head>\n<body name=\"$t\" $csrf $onload>";
+  FW_pO "</head>\n<body $csrf $onload>";
+  FW_pO "<div data-role=\"page\" id=\"infoPage\" data-theme=\"b\">";
 
   if($FW_activateInform) {
     $cmd = "style eventMonitor $FW_activateInform";
@@ -752,6 +758,7 @@ FW_answerCall($)
       }
     }
   }
+  FW_pO "</div>";
   FW_pO "</body></html>";
   return 0;
 }
@@ -855,7 +862,7 @@ FW_makeTable($$$@)
   $class =~ s/[^A-Za-z]/_/g;
   FW_pO "<div class='makeTable wide'>";
   FW_pO $title;
-  FW_pO "<table class=\"block wide $class\">";
+  FW_pO "<table class=\"jhmarker_0100 block wide $class\">";
   my $si = AttrVal("global", "showInternalValues", 0);
 
   my $row = 1;
@@ -870,7 +877,7 @@ FW_makeTable($$$@)
     my $r = ref($val);
     next if($r && ($r ne "HASH" || !defined($hash->{$n}{VAL})));
 
-    FW_pF "<tr class=\"%s\">", ($row&1)?"odd":"even";
+    FW_pF "<div class=\"%s\">", ($row&1)?"odd":"even";
     $row++;
 
     if($n eq "DEF" && !$FW_hiddenroom{input}) {
@@ -878,11 +885,11 @@ FW_makeTable($$$@)
 
     } else {
       if( $title eq "Attributes" ) {
-        FW_pO "<td><div class=\"dname\">".
+        FW_pO "<td class=\"jhmarker_0200\"><div class=\"dname\">".
                 "<a onClick='FW_querySetSelected(\"sel.attr$name\",\"$n\")'>".
               "$n</a></div></td>";
       } else {
-         FW_pO "<td><div class=\"dname\">$n</div></td>";
+         FW_pO "<td class=\"jhmarker_0300\"><div class=\"dname\">$n</div></td>";
       }
 
       if(ref($val)) { #handle readings
@@ -890,24 +897,24 @@ FW_makeTable($$$@)
         $v = FW_htmlEscape($v);
         if($FW_ss) {
           $t = ($t ? "<br><div class=\"tiny\">$t</div>" : "");
-          FW_pO "<td><div class=\"dval\">$v$t</div></td>";
+          FW_pO "<td class=\"jhmarker_0400\"><div class=\"dval\">$v$t</div></td>";
         } else {
           $t = "" if(!$t);
-          FW_pO "<td><div informId=\"$name-$n\">$v</div></td>";
-          FW_pO "<td><div informId=\"$name-$n-ts\">$t</div></td>";
+          FW_pO "<td class=\"jhmarker_0500\"><div informId=\"$name-$n\">$v</div></td>";
+          FW_pO "<td class=\"jhmarker_0600\"><div informId=\"$name-$n-ts\">$t</div></td>";
         }
       } else {
         $val = FW_htmlEscape($val);
 
         # if possible provide som links
         if ($n eq "room"){
-          FW_pO "<td><div class=\"dval\">".
+          FW_pO "<td class=\"jhmarker_0700\"><div class=\"dval\">".
                 join(",", map { FW_pH("room=$_",$_,0,"",1,1) } split(",",$val)).
                 "</div></td>";
 
         } elsif ($n eq "webCmd"){
           my $lc = "detail=$name&cmd.$name=set $name";
-          FW_pO "<td><div name=\"$name-$n\" class=\"dval\">".
+          FW_pO "<td class=\"jhmarker_0800\"><div name=\"$name-$n\" class=\"dval\">".
                   join(":", map {FW_pH("$lc $_",$_,0,"",1,1)} split(":",$val) ).
                 "</div></td>";
 
@@ -915,7 +922,7 @@ FW_makeTable($$$@)
           FW_pH "detail=$1", $val,1;
 
         } else {
-           FW_pO "<td><div class=\"dval\">".
+           FW_pO "<td class=\"jhmarker_0900\"><div class=\"dval\">".
                    join(",", map { ($_ ne $name && $defs{$_}) ?
                      FW_pH( "detail=$_", $_ ,0,"",1,1) : $_ } split(",",$val)).
                  "</div></td>";
@@ -928,7 +935,7 @@ FW_makeTable($$$@)
         if($cmd && !$FW_ss);
     FW_pO "</tr>";
   }
-  FW_pO "</table>";
+  FW_pO "</div>";
   FW_pO "</div>";
 
 }
@@ -977,16 +984,16 @@ FW_doDetail($)
   if($FW_ss) { # FS20MS2 special: on and off, is not the same as toggle
     my $webCmd = AttrVal($d, "webCmd", undef);
     if($webCmd) {
-      FW_pO "<table class=\"webcmd\">";
+      FW_pO "<table class=\"jhmarker_1000 webcmd\">";
       foreach my $cmd (split(":", $webCmd)) {
-        FW_pO "<tr>";
+        FW_pO "<tr class=\"jhmarker_1100\">";
         FW_pH "cmd.$d=set $d $cmd&detail=$d", $cmd, 1, "col1";
         FW_pO "</tr>";
       }
       FW_pO "</table>";
     }
   }
-  FW_pO "<table><tr><td>";
+  FW_pO "<table class=\"jhmarker_1200\"><tr class=\"jhmarker_1300\"><td class=\"jhmarker_1400\">";
 
   if($modules{$t}{FW_detailFn}) {
     no strict "refs";
@@ -1036,7 +1043,7 @@ FW_doDetail($)
   FW_pH "cmd=style iconFor $d", "Select icon";
   FW_pH "cmd=style showDSI $d", "Extend devStateIcon";
   FW_pH "$FW_ME/docs/commandref.html#${t}", "Device specific help";
-  FW_pO "<br><br>";
+  FW_pO "<br /><br />";
   FW_pO "</div>";
 
 }
@@ -1049,12 +1056,12 @@ FW_makeTableFromArray($$@) {
     my $row=1;
     FW_pO "<div class='makeTable wide'>";
     FW_pO "$txt";
-    FW_pO "<table class=\"block wide $class\">";
+    FW_pO "<table class=\"jhmarker_1500 block wide $class\">";
     foreach (sort @obj) {
-      FW_pF "<tr class=\"%s\"><td>", ($row&1)?"odd":"even";
+      FW_pF "<tr class=\"jhmarker_1600 %s\"><td class=\"jhmarker_1700\">", ($row&1)?"odd":"even";
       $row++;
       FW_pH "detail=$_", $_;
-      FW_pO "</td><td>$defs{$_}{TYPE}</td><td> </td>";
+      FW_pO "</td><td class=\"jhmarker_1800\">$defs{$_}{TYPE}</td><td class=\"jhmarker_1900\"> </td>";
       FW_pO "</tr>";
     }
     FW_pO "</table></div>";
@@ -1104,8 +1111,6 @@ FW_roomOverview($)
   } else {
     $hasMenuScroll = 1;
     FW_pO '<div id="menuScrollArea">';
-    FW_pH "", '<div id="logo"></div>';
-
   }
 
 
@@ -1180,9 +1185,9 @@ FW_roomOverview($)
   }
 
   FW_pO "<div id=\"menu\">";
-  FW_pO "<table>";
+  FW_pO "<div id=\"menu_bar\">";
   if($FW_ss) {  # Make a selection sensitive dropdown list
-    FW_pO "<tr><td><select OnChange=\"location.href=" .
+    FW_pO "<tr class=\"jhmarker_2000\"><td class=\"jhmarker_2100\"><select OnChange=\"location.href=" .
                               "this.options[this.selectedIndex].value\">";
     foreach(my $idx = 0; $idx < @list1; $idx++) {
       next if(!$list1[$idx]);
@@ -1198,14 +1203,18 @@ FW_roomOverview($)
     foreach(my $idx = 0; $idx < @list1; $idx++) {
       my ($l1, $l2) = ($list1[$idx], $list2[$idx]);
       if(!$l1) {
-        FW_pO "</table></td></tr>" if($idx);
+        FW_pO "</ul></div>" if($idx);
         if($idx<int(@list1)-1) {
-          FW_pO "<tr><td><table class=\"room roomBlock$tblnr\">";
+          FW_pO "<div class=\"room roomBlock$tblnr\" data-role=\"collapsible\" data-collapsed=\"false\" data-theme=\"a\" data-content-theme=\"a\">";
+		  FW_pO "<h3>Rooms</h3>" if($idx>0 && $idx+11 < @list1);
+		  FW_pO "<h3>Other</h3>" if($tblnr == 3);
+		  FW_pO "<ul data-role=\"listview\" data-theme=\"c\" data-dividertheme=\"d\">";
           $tblnr++;
         }
 
       } else {
-        FW_pF "<tr%s>", $l1 eq $FW_room ? " class=\"sel\"" : "";
+		# FW_pO "<li>";
+        FW_pF "<li%s>", $l1 eq $FW_room ? " class=\"sel\"" : "";
 
         # image tag if we have an icon, else empty
         my $icoName = "ico$l1";
@@ -1217,31 +1226,29 @@ FW_roomOverview($)
         # Force external browser if FHEMJQWEB is installed as an offline app.
         if($l2 =~ m/.html$/ || $l2 =~ m/^http/) {
 		  $icon = FW_makeImage('Link','Link',"icon")."&nbsp;";		
-           FW_pO "<td><div><a href=\"$l2\">$icon$l1</a></div></td>";
+           FW_pO "<a href=\"$l2\">$icon$l1</a>";
         } else {
 		  $icon = FW_makeImage('Save','Save',"icon")."&nbsp;" if ($l1 eq "Save config");
 		  $icon = FW_makeImage('List','List',"icon")."&nbsp;" if ($icon eq "");
           FW_pH $l2, "$icon$l1", 1;
         }
-        FW_pO "</tr>";
+        FW_pO "</li>";
       }
     }
 
   }
-  FW_pO "</table>";
+  FW_pO "</div>";
   FW_pO "</div>";
   FW_pO "</div>" if($hasMenuScroll);
 
   ##############
   # HEADER
   FW_pO "<div id=\"hdr\">";
-  FW_pO '<table border="0" class="header"><tr><td style="padding:0">';
-  FW_pO "<form method=\"$FW_formmethod\" action=\"$FW_ME\">";
+  FW_pO "<form method=\"$FW_formmethod\" action=\"$FW_ME\"><fieldset>";
   FW_pO FW_hidden("room", "$FW_room") if($FW_room);
   FW_pO FW_hidden("fwcsrf", $defs{$FW_wname}{CSRFTOKEN}) if($FW_CSRF);
   FW_pO FW_textfield("cmd", $FW_ss ? 25 : 40, "maininput");
-  FW_pO "</form>";
-  FW_pO "</td></tr></table>";
+  FW_pO "</fieldset></form>";
   FW_pO "</div>";
 
 }
@@ -1263,7 +1270,7 @@ FW_showRoom()
   FW_pO "<form method=\"$FW_formmethod\" ".
                 "action=\"$FW_ME\" autocomplete=\"off\">";
   FW_pO "<div id=\"content\" room=\"$FW_room\">";
-  FW_pO "<table class=\"roomoverview\">";  # Need for equal width of subtables
+  FW_pO "<div class=\"roomoverview\">";  # Need for equal width of subtables
 
   my $rf = ($FW_room ? "&amp;room=$FW_room" : ""); # stay in the room
 
@@ -1292,9 +1299,9 @@ FW_showRoom()
   my %extPage = ();
 
   my ($columns, $maxc) = FW_parseColumns();
-  FW_pO "<tr class=\"column\">" if($maxc != -1);
+  FW_pO "<tr class=\"jhmarker_2200 column\">" if($maxc != -1);
   for(my $col=1; $col < ($maxc==-1 ? 2 : $maxc); $col++) {
-    FW_pO "<td><table class=\"column tblcol_$col\">" if($maxc != -1);
+    FW_pO "<td class=\"jhmarker_2300\"><table class=\"jhmarker_2400 column tblcol_$col\">" if($maxc != -1);
 
     # iterate over the distinct groups  
     foreach my $g (sort keys %group) {
@@ -1303,22 +1310,22 @@ FW_showRoom()
 
       #################
       # Check if there is a device of this type in the room
-      FW_pO "\n<tr><td><div class=\"devType\">$g</div></td></tr>";
-      FW_pO "<tr><td>";
-      FW_pO "<table class=\"block wide\" id=\"TYPE_$g\">";
+      FW_pO "\n<div><div class=\"devType\">$g</div></div>";
+      FW_pO "<div class=\"jhmarker_2500\">";
+      FW_pO "<div class=\"block wide\" id=\"TYPE_$g\">";
 
       foreach my $d (sort { lc(AttrVal($a,"sortby",AttrVal($a,"alias",$a))) cmp
                             lc(AttrVal($b,"sortby",AttrVal($b,"alias",$b))) }
                      keys %{$group{$g}}) {
         my $type = $defs{$d}{TYPE};
 
-        FW_pF "\n<tr class=\"%s\">", ($row&1)?"odd":"even";
+        FW_pF "\n<div class=\"jhmarker_2600 %s\">", ($row&1)?"odd":"even";
         my $devName = AttrVal($d, "alias", $d);
         my $icon = AttrVal($d, "icon", "");
         $icon = FW_makeImage($icon,$icon,"icon") . "&nbsp;" if($icon);
 
         if($FW_hiddenroom{detail}) {
-          FW_pO "<td><div class=\"col1\">$icon$devName</div></td>";
+          FW_pO "<div class=\"jhmarker_2700\"><div class=\"col1\">$icon$devName</div></div>";
         } else {
           FW_pH "detail=$d", "$icon$devName", 1, "col1" if(!$usuallyAtEnd{$d});
         }
@@ -1328,7 +1335,7 @@ FW_showRoom()
         $allSets = FW_widgetOverride($d, $allSets);
 
         my $colSpan = ($usuallyAtEnd{$d} ? ' colspan="2"' : '');
-        FW_pO "<td informId=\"$d\"$colSpan>$txt</td>";
+        FW_pO "<div informId=\"$d\"$colSpan>$txt</div>";
 
         ######
         # Commands, slider, dropdown
@@ -1354,16 +1361,16 @@ FW_showRoom()
             }
           }
         }
-        FW_pO "</tr>";
+        FW_pO "</div>";
       }
-      FW_pO "</table>";
-      FW_pO "</td></tr>";
+      FW_pO "</div>";
+      FW_pO "</div>";
     }
-    FW_pO "</table></td>" if($maxc != -1); # Column
+    FW_pO "</div></td>" if($maxc != -1); # Column
   }
   # FW_pO "</tr>";
 
-  FW_pO "</table><br>";
+  FW_pO "</div><br />";
 
   # Now the "atEnds"
   foreach my $d (sort { lc(AttrVal($a, "sortby", AttrVal($a,"alias",$a))) cmp
@@ -1582,19 +1589,19 @@ FW_displayFileList($@)
   my $hid = lc($heading);
   $hid =~ s/[^A-Za-z]/_/g;
   FW_pO "<div class=\"fileList $hid\">$heading</div>";
-  FW_pO "<table class=\"block fileList\">";
+  FW_pO "<div class=\"block fileList\">";
   my $cfgDB = "";
   my $row = 0;
   foreach my $f (@files) {
     $cfgDB = ($f =~ s,\.configDB$,,);
     $cfgDB = ($cfgDB) ? "configDB" : "";
-    FW_pO "<tr class=\"" . ($row?"odd":"even") . "\">";
+    FW_pO "<div class=\"" . ($row?"odd":"even") . "\">";
     FW_pH "cmd=style edit $f $cfgDB", $f, 1;
-    FW_pO "</tr>";
+    FW_pO "</div>";
     $row = ($row+1)%2;
   }
-  FW_pO "</table>";
-  FW_pO "<br>";
+  FW_pO "</div>";
+  FW_pO "<br />";
 }
 
 ##################
@@ -1627,12 +1634,12 @@ FW_style($$)
   my $ac = AttrVal($FW_wname,"allowedCommands","");
   return if($ac && $ac !~ m/\b$a[0]\b/);
 
-  my $start = "<div id=\"content\"><table><tr><td>";
+  my $start = "<div id=\"content\"><table class=\"jhmarker_2800\"><tr class=\"jhmarker_2900\"><td class=\"jhmarker_3000\">";
   my $end   = "</td></tr></table></div>";
   
   if($a[1] eq "list") {
     FW_pO $start;
-    FW_pO "$msg<br><br>" if($msg);
+    FW_pO "$msg<br /><br />" if($msg);
 
     $attr{global}{configfile} =~ m,([^/]*)$,;
     my $cfgFileName = $1;
@@ -1650,13 +1657,13 @@ FW_style($$)
   } elsif($a[1] eq "select") {
     my @fl = grep { $_ !~ m/(floorplan|dashboard)/ }
                         FW_fileList("$FW_cssdir/.*style.css");
-    FW_pO "$start<table class=\"block fileList\">";
+    FW_pO "$start<table class=\"jhmarker_3100 block fileList\">";
     my $row = 0;
     foreach my $file (@fl) {
       next if($file =~ m/svg_/);
       $file =~ s/style.css//;
       $file = "default" if($file eq "");
-      FW_pO "<tr class=\"" . ($row?"odd":"even") . "\">";
+      FW_pO "<tr class=\"jhmarker_3150 " . ($row?"odd":"even") . "\">";
       FW_pH "cmd=style set $file", "$file", 1;
       FW_pO "</tr>";
       $row = ($row+1)%2;
@@ -1694,7 +1701,7 @@ FW_style($$)
     FW_pO     "&nbsp;&nbsp;";
     FW_pO     FW_submit("saveAs", "Save as");
     FW_pO     FW_textfieldv("saveName", 30, "saveName", $fileName);
-    FW_pO     "<br><br>";
+    FW_pO     "<br /><br />";
     FW_pO     FW_hidden("cmd", "style save $fileName $cfgDB");
     FW_pO     FW_hidden("fwcsrf", $defs{$FW_wname}{CSRFTOKEN}) if($FW_CSRF);
     FW_pO     "<textarea name=\"data\" cols=\"$ncols\" rows=\"30\">" .
@@ -1746,10 +1753,10 @@ FW_style($$)
     FW_pO "<div id=\"content\">";
     if($a[2] && $a[2] ne "1") {
       FW_pO "<div id=\"console\" filter=\"$a[2]\">";
-      FW_pO "Events ($a[2] only):<br>\n";
+      FW_pO "Events ($a[2] only):<br />\n";
     } else {
       FW_pO "<div id=\"console\">";
-      FW_pO "Events:<br>\n";
+      FW_pO "Events:<br />\n";
     }
     FW_pO "</div>";
     FW_pO "</div>";
@@ -1778,7 +1785,7 @@ FW_iconTable($$$$)
   FW_pO "<div id=\"content\">";
   FW_pO "<form method=\"$FW_formmethod\">";
   if($textfield) {
-    FW_pO "$textfield:&nbsp;".FW_textfieldv("data",20,"iconTable",".*")."<br>";
+    FW_pO "$textfield:&nbsp;".FW_textfieldv("data",20,"iconTable",".*")."<br />";
   }
   foreach my $i (sort keys %icoList) {
     FW_pF "<button title='%s' type='submit' class='dist' name='cmd' ".
@@ -1821,8 +1828,7 @@ FW_pH(@)
   #  as I can't check all code for consistancy I add nonl instead
   $class = ($class)?" class=\"$class\"":"";
   $ret = "<div$class>$ret</div>" if (!$nonl);
-
-  $ret = "<td>$ret</td>" if($td);
+  $ret = "$ret" if($td);
   return $ret if($doRet);
   FW_pO $ret;
 }
@@ -1836,7 +1842,7 @@ FW_pHPlain(@)
 
   $link = "?$link" if($link !~ m+^/+);
   my $ret = "";
-  $ret .= "<td>" if($td);
+  $ret .= "<td class=\"jhmarker_3300\">" if($td);
   $link .= $FW_CSRF;
   if($FW_ss || $FW_tp) {
     $ret .= "<a onClick=\"location.href='$FW_ME$FW_subdir$link'\">$txt</a>";
@@ -2143,19 +2149,19 @@ FW_makeEdit($$$)
              "s.display = s.display=='none' ? 'block' : 'none';".
              "s=document.getElementById('disp').style;".
              "s.display = s.display=='none' ? 'block' : 'none';";
-  FW_pO "<td>";
+  FW_pO "<div class=\"jhmarker_3400\">";
   FW_pO "<a onClick=\"$pgm\">$n</a>";
-  FW_pO "</td>";
+  FW_pO "</div>";
 
   $val =~ s,\\\n,\n,g;
   $val = FW_htmlEscape($val);
   my $eval = $val;
   $eval = "<pre>$eval</pre>" if($eval =~ m/\n/);
-  FW_pO "<td>";
+  FW_pO "<div class=\"jhmarker_3500\">";
   FW_pO   "<div class=\"dval\" id=\"disp\">$eval</div>";
-  FW_pO  "</td>";
+  FW_pO  "</div>";
 
-  FW_pO  "</tr><tr><td colspan=\"2\">";
+  FW_pO  "</tr><tr class=\"jhmarker_3600\"><div colspan=\"2\">";
   FW_pO   "<div id=\"edit\" style=\"display:none\">";
   FW_pO   "<form method=\"$FW_formmethod\">";
   FW_pO       FW_hidden("detail", $name);
@@ -2164,9 +2170,9 @@ FW_makeEdit($$$)
   my $ncols = $FW_ss ? 30 : 60;
   FW_pO      "<textarea name=\"val.${cmd}$name\" ".
                 "cols=\"$ncols\" rows=\"10\">$val</textarea>";
-  FW_pO     "<br>" . FW_submit("cmd.${cmd}$name", "$cmd $name");
+  FW_pO     "<br />" . FW_submit("cmd.${cmd}$name", "$cmd $name");
   FW_pO   "</form></div>";
-  FW_pO  "</td>";
+  FW_pO  "</div>";
 }
 
 
@@ -2258,7 +2264,7 @@ FW_Notify($$)
       my $max = int(@{$events});
       my $dt = $dev->{TYPE};
       for(my $i = 0; $i < $max; $i++) {
-        push @data,("$tn $dt $dn ".$events->[$i]."<br>");
+        push @data,("$tn $dt $dn ".$events->[$i]."<br />");
       }
     }
   }
@@ -2459,7 +2465,7 @@ FW_sliderFn($$$$$)
   $cmd = "" if($cmd eq "state");
   $cv =~ s/.*?([.\-\d]+).*/$1/; # get first number
   $cv = 0 if($cv !~ m/\d/);
-  return "<td colspan='2'>".
+  return "<div colspan='2'>".
            "<div class='slider' id='slider.$d$id' min='$min' stp='$stp' ".
                  "max='$max' cmd='$FW_ME?cmd=set $d $cmd %$srf'>".
              "<div class='handle'>$min</div>".
@@ -2467,7 +2473,7 @@ FW_sliderFn($$$$$)
            "<script type=\"text/javascript\">".
              "FW_sliderCreate(document.getElementById('slider.$d$id'),'$cv');".
            "</script>".
-         "</td>";
+         "</div>";
 }
 
 sub
@@ -2490,10 +2496,10 @@ FW_timepickerFn()
   my $cv = ReadingsVal($d, $cmd, Value($d));
   $cmd = "" if($cmd eq "state");
   my $c = "\"$FW_ME?cmd=set $d $cmd %$srf\"";
-  return "<td colspan='2'>".
+  return "<div>".
             "<input name='time.$d' value='$cv' type='text' readonly size='5'>".
             "<input type='button' value='+' onclick='FW_timeCreate(this,$c)'>".
-          "</td>";
+          "</div>";
 }
 
 sub 
@@ -2524,11 +2530,11 @@ FW_dropdownFn()
              FW_hidden("cmd.$d", "set");
     $fwsel .= FW_hidden("fwcsrf", $defs{$FW_wname}{CSRFTOKEN}) if($FW_CSRF);
 
-    return "<td colspan='2'><form method=\"$FW_formmethod\">".
+    return "<div class=\"args\"><form method=\"$FW_formmethod\">".
       FW_hidden("arg.$d", $cmd) .
       FW_hidden("dev.$d", $d) .
       ($FW_room ? FW_hidden("room", $FW_room) : "") .
-      "$fwsel</form></td>";
+      "$fwsel</form></div>";
   }
   return undef;
 }
@@ -2616,50 +2622,50 @@ FW_widgetOverride($$)
 <ul>
   FHEMJQWEB is the builtin web-frontend, it also implements a simple web
   server (optionally with Basic-Auth and HTTPS).
-  <br> <br>
+  <br /> <br />
 
   <a name="FHEMJQWEBdefine"></a>
   <b>Define</b>
   <ul>
     <code>define &lt;name&gt; FHEMJQWEB &lt;tcp-portnr&gt; [global]</code>
-    <br><br>
+    <br /><br />
     Enable the webfrontend on port &lt;tcp-portnr&gt;. If global is specified,
     then requests from all interfaces (not only localhost / 127.0.0.1) are
-    serviced.<br>
+    serviced.<br />
     To enable listening on IPV6 see the comments <a href="#telnet">here</a>.
-    <br>
+    <br />
   </ul>
-  <br>
+  <br />
 
   <a name="FHEMJQWEBset"></a>
   <b>Set</b>
   <ul>
-    <li>rereadicons<br>
+    <li>rereadicons<br />
       reads the names of the icons from the icon path.  Use after adding or
       deleting icons.
       </li>
-    <li>clearSvgCache<br>
+    <li>clearSvgCache<br />
       delete all files found in the www2/SVGcache directory, which is used to
       cache SVG data, if the SVGcache attribute is set.
       </li>
   </ul>
-  <br>
+  <br />
 
   <a name="FHEMJQWEBget"></a>
   <b>Get</b>
   <ul>
-    <li>icon &lt;logical icon&gt;<br>
+    <li>icon &lt;logical icon&gt;<br />
         returns the absolute path to the logical icon. Example:
         <ul>
-          <code>get myFHEMJQWEB icon FS20.on<br>
+          <code>get myFHEMJQWEB icon FS20.on<br />
           /data/Homeautomation/fhem/FHEM/FS20.on.png
           </code>
         </ul>
         </li>
-    <li>pathlist<br>
+    <li>pathlist<br />
         return FHEMJQWEB specific directories, where files for given types are
         located
-    <br><br>
+    <br /><br />
 
   </ul>
 
@@ -2667,197 +2673,197 @@ FW_widgetOverride($$)
   <b>Attributes</b>
   <ul>
     <a name="webname"></a>
-    <li>webname<br>
+    <li>webname<br />
         Path after the http://hostname:port/ specification. Defaults to fhem,
         i.e the default http address is http://localhost:8083/fhem
-        </li><br>
+        </li><br />
 
     <a name="refresh"></a>
-    <li>refresh<br>
+    <li>refresh<br />
         If set, a http-equiv="refresh" entry will be genererated with the given
         argument (i.e. the browser will reload the page after the given
         seconds).
-        </li><br>
+        </li><br />
 
     <a name="plotmode"></a>
-    <li>plotmode<br>
+    <li>plotmode<br />
         Specifies how to generate the plots:
         <ul>
-          <li>SVG<br>
+          <li>SVG<br />
               The plots are created with the <a href="#SVG">SVG</a> module.
               This is the default.</li>
 
-          <li>gnuplot<br>
+          <li>gnuplot<br />
               The plots are created with the gnuplot program. Note: this mode
               ist only available due to historic reasons.</li>
 
-          <li>gnuplot-scroll<br>
+          <li>gnuplot-scroll<br />
               Like the gnuplot-mode, but scrolling to historical values is alos
               possible, just like with SVG.</li>
         </ul>
-        </li><br>
+        </li><br />
 
     <a name="plotsize"></a>
-    <li>plotsize<br>
+    <li>plotsize<br />
         the default size of the plot, in pixels, separated by comma:
         width,height. You can set individual sizes by setting the plotsize of
         the SVG. Default is 800,160 for desktop, and 480,160 for
         smallscreen.
-        </li><br>
+        </li><br />
 
     <a name="nrAxis"></a>
-    <li>nrAxis<br>
+    <li>nrAxis<br />
         the number of axis for which space should be reserved  on the left and
         right sides of a plot and optionaly how many axes should realy be used
         on each side, separated by comma: left,right[,useLeft,useRight].  You
         can set individual numbers by setting the nrAxis of the SVG. Default is
         1,1.
-        </li><br>
+        </li><br />
 
     <a name="SVGcache"></a>
-    <li>SVGcache<br>
+    <li>SVGcache<br />
         if set, cache plots which won't change any more (the end-date is prior
         to the current timestamp). The files are written to the www2/SVGcache
-        directory. Default is off.<br>
+        directory. Default is off.<br />
         See also the clearSvgCache command for clearing the cache.
-        </li><br>
+        </li><br />
 
     <a name="endPlotToday"></a>
-    <li>endPlotToday<br>
+    <li>endPlotToday<br />
         If this FHEMJQWEB attribute is set to 1, then week and month plots will
         end today. Else the current week (starting at Sunday) or the current
-        month will be shown.<br>
-        </li><br>
+        month will be shown.<br />
+        </li><br />
 
     <a name="endPlotNow"></a>
-    <li>endPlotNow<br>
+    <li>endPlotNow<br />
         If this FHEMJQWEB attribute is set to 1, then day and hour plots will
         end at current time. Else the whole day, the 6 hour period starting at
         0, 6, 12 or 18 hour or the whole hour will be shown. This attribute
-        is not used if the SVG has the attribute startDate defined.<br>
-        </li><br>
+        is not used if the SVG has the attribute startDate defined.<br />
+        </li><br />
 
     <a name="ploteditor"></a>
-    <li>ploteditor<br>
+    <li>ploteditor<br />
         Configures if the <a href="#plotEditor">Plot editor</a> should be shown
         in the SVG detail view.
         Can be set to always, onClick or never. Default is always.
-        </li><br>
+        </li><br />
 
     <a name="plotfork"></a>
-    <li>plotfork [&lt;&Delta;p&gt;]<br>
+    <li>plotfork [&lt;&Delta;p&gt;]<br />
         If set to a nonzero value, run part of the processing (e.g. <a
         href="#SVG">SVG</a> plot generation or <a href="#RSS">RSS</a> feeds) in
         parallel processes.  Actually, child processes are forked whose
         priorities are the FHEM process' priority plus &Delta;p. 
         Higher values mean lower priority. e.g. use &Delta;p= 10 to renice the
         child processes and provide more CPU power to the main FHEM process.
-        &Delta;p is optional and defaults to 0.<br>
+        &Delta;p is optional and defaults to 0.<br />
         Note: do not use it
         on Windows and on systems with small memory footprint.
-    </li><br>
+    </li><br />
 
     <a name="plotEmbed"></a>
-    <li>plotEmbed 0<br>
+    <li>plotEmbed 0<br />
         SVG plots are rendered as part of &lt;embed&gt; tags, as in the past
         this was the only way to display SVG, and it allows to render them in
         parallel, see plotfork. As of iOS 8, if FHEMJQWEB is called from the Home
         Screen, the SVG is fetched but not displayed, which is IMHO a bug.
         Setting plotEmbed to 0 will render SVG in-place, but as a side-effect
-        makes the plotfork attribute meaningless.<br>
+        makes the plotfork attribute meaningless.<br />
         This attribute defaults to 0 on iOS8 devices, and 1 elsewhere.
-    </li><br>
+    </li><br />
 
 
     <a name="basicAuth"></a>
-    <li>basicAuth, basicAuthMsg<br>
+    <li>basicAuth, basicAuthMsg<br />
         request a username/password authentication for access. You have to set
         the basicAuth attribute to the Base64 encoded value of
         &lt;user&gt;:&lt;password&gt;, e.g.:<ul>
-        # Calculate first the encoded string with the commandline program<br>
-        $ echo -n fhemuser:secret | base64<br>
-        ZmhlbXVzZXI6c2VjcmV0<br>
-        fhem.cfg:<br>
+        # Calculate first the encoded string with the commandline program<br />
+        $ echo -n fhemuser:secret | base64<br />
+        ZmhlbXVzZXI6c2VjcmV0<br />
+        fhem.cfg:<br />
         attr WEB basicAuth ZmhlbXVzZXI6c2VjcmV0
         </ul>
         You can of course use other means of base64 encoding, e.g. online
         Base64 encoders. If basicAuthMsg is set, it will be displayed in the
-        popup window when requesting the username/password.<br>
-        <br>
+        popup window when requesting the username/password.<br />
+        <br />
         If the argument of basicAuth is enclosed in {}, then it will be
         evaluated, and the $user and $password variable will be set to the
         values entered. If the return value is true, then the password will be
         accepted.
-        Example:<br>
+        Example:<br />
         <code>
-          attr WEB basicAuth { "$user:$password" eq "admin:secret" }<br>
+          attr WEB basicAuth { "$user:$password" eq "admin:secret" }<br />
         </code>
-    </li><br>
+    </li><br />
 
     <a name="HTTPS"></a>
-    <li>HTTPS<br>
+    <li>HTTPS<br />
         Enable HTTPS connections. This feature requires the perl module
         IO::Socket::SSL, to be installed with cpan -i IO::Socket::SSL or
         apt-get install libio-socket-ssl-perl; OSX and the FritzBox-7390
-        already have this module.<br>
+        already have this module.<br />
 
         A local certificate has to be generated into a directory called certs,
         this directory <b>must</b> be in the <a href="#modpath">modpath</a>
         directory, at the same level as the FHEM directory.
         <ul>
-        mkdir certs<br>
-        cd certs<br>
+        mkdir certs<br />
+        cd certs<br />
         openssl req -new -x509 -nodes -out server-cert.pem -days 3650 -keyout server-key.pem
         </ul>
-      <br>
+      <br />
     </li>
 
     <li><a href="#addStateEvent">addStateEvent</a></li>
 
     <a name="allowedCommands"></a>
-    <li>allowedCommands<br>
+    <li>allowedCommands<br />
         A comma separated list of commands allowed from this FHEMJQWEB
-        instance.<br> If set to an empty list <code>, (i.e. comma only)</code>
-        then this FHEMJQWEB instance will be read-only.<br> If set to
+        instance.<br /> If set to an empty list <code>, (i.e. comma only)</code>
+        then this FHEMJQWEB instance will be read-only.<br /> If set to
         <code>get,set</code>, then this FHEMJQWEB instance will only allow
         regular usage of the frontend by clicking the icons/buttons/sliders but
-        not changing any configuration.<br>
+        not changing any configuration.<br />
 
 
         This attribute intended to be used together with hiddenroom/hiddengroup
-        <br>
+        <br />
 
         <b>Note:</b>allowedCommands should work as intended, but no guarantee
         can be given that there is no way to circumvent it.  If a command is
         allowed it can be issued by URL manipulation also for devices that are
-        hidden.</li><br>
+        hidden.</li><br />
 
     <li><a href="#allowfrom">allowfrom</a></li>
-    </li><br>
+    </li><br />
 
     <a name="stylesheetPrefix"></a>
-    <li>stylesheetPrefix<br>
+    <li>stylesheetPrefix<br />
       prefix for the files style.css, svg_style.css and svg_defs.svg. If the
       file with the prefix is missing, the default file (without prefix) will
       be used.  These files have to be placed into the FHEM directory, and can
       be selected directly from the "Select style" FHEMJQWEB menu entry. Example:
       <ul>
-        attr WEB stylesheetPrefix dark<br>
-        <br>
-        Referenced files:<br>
+        attr WEB stylesheetPrefix dark<br />
+        <br />
+        Referenced files:<br />
         <ul>
-        darksvg_defs.svg<br>
-        darksvg_style.css<br>
-        darkstyle.css<br>
+        darksvg_defs.svg<br />
+        darksvg_style.css<br />
+        darkstyle.css<br />
         </ul>
-        <br>
+        <br />
       </ul>
       <b>Note:</b>if the argument contains the string smallscreen or touchpad,
       then FHEMJQWEB will optimize the layout/access for small screen size (i.e.
-      smartphones) or touchpad devices (i.e. tablets)<br>
+      smartphones) or touchpad devices (i.e. tablets)<br />
 
       The default configuration installs 3 FHEMJQWEB instances: port 8083 for
-      desktop browsers, port 8084 for smallscreen, and 8085 for touchpad.<br>
+      desktop browsers, port 8084 for smallscreen, and 8085 for touchpad.<br />
 
       If touchpad or smallscreen is specified, then WebApp support is
       activated: After viewing the site on the iPhone or iPad in Safari, you
@@ -2865,57 +2871,57 @@ FW_widgetOverride($$)
       rendered differently in this mode to avoid switching back to the "normal"
       browser.
       </li>
-      <br>
+      <br />
 
     <a name="iconPath"></a>
-    <li>iconPath<br>
+    <li>iconPath<br />
       colon separated list of directories where the icons are read from.
       The directories start in the fhem/www2/images directory. The default is
-      $styleSheetPrefix:default:fhemSVG:openautomation<br>
+      $styleSheetPrefix:default:fhemSVG:openautomation<br />
       Set it to fhemSVG:openautomation to get only SVG images.
       </li>
-      <br>
+      <br />
 
     <a name="hiddenroom"></a>
-    <li>hiddenroom<br>
+    <li>hiddenroom<br />
         Comma separated list of rooms to "hide", i.e. not to show. Special
         values are input, detail and save, in which case the input areas, link
         to the detailed views or save button is hidden (although each aspect
-        still can be addressed through URL manipulation).<br>
+        still can be addressed through URL manipulation).<br />
         The list can also contain values from the additional "Howto/Wiki/FAQ"
         block.
         </li>
-        <br>
+        <br />
 
     <a name="hiddengroup"></a>
-    <li>hiddengroup<br>
+    <li>hiddengroup<br />
         Comma separated list of groups to "hide", i.e. not to show in any room
-        of this FHEMJQWEB instance.<br>
+        of this FHEMJQWEB instance.<br />
         Example:  attr WEBtablet hiddengroup FileLog,dummy,at,notify
         </li>
-        <br>
+        <br />
 
     <a name="menuEntries"></a>
-    <li>menuEntries<br>
+    <li>menuEntries<br />
         Comma separated list of name,html-link pairs to display in the
-        left-side list.  Example:<br>
-        attr WEB menuEntries fhem.de,http://fhem.de,culfw.de,http://culfw.de<br>
-        attr WEB menuEntries AlarmOn,http://fhemhost:8083/fhem?cmd=set%20alarm%20on<br>
+        left-side list.  Example:<br />
+        attr WEB menuEntries fhem.de,http://fhem.de,culfw.de,http://culfw.de<br />
+        attr WEB menuEntries AlarmOn,http://fhemhost:8083/fhem?cmd=set%20alarm%20on<br />
         </li>
-        <br>
+        <br />
 
     <a name="longpoll"></a>
-    <li>longpoll<br>
-        Affects devices states in the room overview only.<br>
+    <li>longpoll<br />
+        Affects devices states in the room overview only.<br />
         In this mode status update is refreshed more or less instantaneously,
         and state change (on/off only) is done without requesting a complete
         refresh from the server.
         Default is on.
         </li>
-        <br>
+        <br />
 
     <a name="longpollSVG"></a>
-    <li>longpollSVG<br>
+    <li>longpollSVG<br />
         Reloads an SVG weblink, if an event should modify its content. Since 
         an exact determination of the affected events is too complicated, we
         need some help from the #FileLog definition in the .gplot file: the
@@ -2926,141 +2932,141 @@ FW_widgetOverride($$)
         this deviceName.
         Default is off.
         </li>
-        <br>
+        <br />
 
 
     <a name="redirectCmds"></a>
-    <li>redirectCmds<br>
+    <li>redirectCmds<br />
         Clear the browser URL window after issuing the command by redirecting
         the browser, as a reload for the same site might have unintended
         side-effects. Default is 1 (enabled). Disable it by setting this
         attribute to 0 if you want to study the command syntax, in order to
         communicate with FHEMJQWEB.
         </li>
-        <br>
+        <br />
 
     <a name="fwcompress"></a>
-    <li>fwcompress<br>
+    <li>fwcompress<br />
         Enable compressing the HTML data (default is 1, i.e. yes, use 0 to switch it off).
         </li>
-        <br>
+        <br />
 
     <a name="reverseLogs"></a>
-    <li>reverseLogs<br>
+    <li>reverseLogs<br />
         Display the lines from the logfile in a reversed order, newest on the
         top, so that you dont have to scroll down to look at the latest entries.
         Note: enabling this attribute will prevent FHEMJQWEB from streaming
         logfiles, resulting in a considerably increased memory consumption
         (about 6 times the size of the file on the disk).
         </li>
-        <br>
+        <br />
 
     <a name="CORS"></a>
-    <li>CORS<br>
+    <li>CORS<br />
         If set to 1, FHEMJQWEB will supply a "Cross origin resource sharing"
         header, see the wikipedia for details.
         </li>
-        <br>
+        <br />
 
     <a name="icon"></a>
-    <li>icon<br>
+    <li>icon<br />
         Set the icon for a device in the room overview. There is an
         icon-chooser in FHEMJQWEB to ease this task.  Setting icons for the room
         itself is indirect: there must exist an icon with the name
         ico<ROOMNAME>.png in the iconPath.
         </li>
-        <br>
+        <br />
 
     <a name="roomIcons"></a>
-    <li>roomIcons<br>
+    <li>roomIcons<br />
         Space separated list of room:icon pairs, to override the default
         behaviour of showing an icon, if there is one with the name of
         "icoRoomName". This is the correct way to remove the icon for the room
         Everything, or to set one for rooms with / in the name (e.g.
         Anlagen/EDV). The first part is treated as regexp, so space is
-        represented by a dot.  Example:<br>
+        represented by a dot.  Example:<br />
         attr WEB roomIcons Anlagen.EDV:icoEverything
         </li>
-        <br>
+        <br />
 
     <a name="sortRooms"></a>
-    <li>sortRooms<br>
+    <li>sortRooms<br />
         Space separated list of rooms to override the default
-        sort order of the room links. Example:<br>
+        sort order of the room links. Example:<br />
         attr WEB sortRooms DG OG EG Keller
         </li>
-        <br>
+        <br />
         
     <a name="defaultRoom"></a>
-    <li>defaultRoom<br>
+    <li>defaultRoom<br />
         show the specified room if no room selected, e.g. on execution of some
-        commands.  If set hides the <a href="#motd">motd</a>. Example:<br>
+        commands.  If set hides the <a href="#motd">motd</a>. Example:<br />
         attr WEB defaultRoom Zentrale
         </li>
-        <br> 
+        <br /> 
 
     <a name="sortby"></a>
-    <li>sortby<br>
+    <li>sortby<br />
         Take the value of this attribute when sorting the devices in the room
         overview instead of the alias, or if that is missing the devicename
         itself.
         </li>
-        <br>
+        <br />
 
     <a name="devStateIcon"></a>
-    <li>devStateIcon<br>
-        First form:<br>
+    <li>devStateIcon<br />
+        First form:<br />
         <ul>
         Space separated list of regexp:icon-name:cmd triples, icon-name and cmd
-        may be empty.<br>
+        may be empty.<br />
         If the state of the device matches regexp, then icon-name will be
         displayed as the status icon in the room, and (if specified) clicking
         on the icon executes cmd.  If fhem cannot find icon-name, then the
         status text will be displayed. 
-        Example:<br>
+        Example:<br />
         <ul>
-        attr lamp devStateIcon on:closed off:open<br>
-        attr lamp devStateIcon on::A0 off::AI<br>
-        attr lamp devStateIcon .*:noIcon<br>
+        attr lamp devStateIcon on:closed off:open<br />
+        attr lamp devStateIcon on::A0 off::AI<br />
+        attr lamp devStateIcon .*:noIcon<br />
         </ul>
         Note: if the image is referencing an SVG icon, then you can use the
-        @colorname suffix to color the image. E.g.:<br>
+        @colorname suffix to color the image. E.g.:<br />
         <ul>
         attr Fax devStateIcon on:control_building_empty@red off:control_building_filled:278727
         </ul>
 
         </ul>
-        Second form:<br>
+        Second form:<br />
         <ul>
         Perl regexp enclosed in {}. If the code returns undef, then the default
         icon is used, if it retuns a string enclosed in <>, then it is
         interpreted as an html string. Else the string is interpreted as a
         devStateIcon of the first fom, see above.
-        Example:<br>
+        Example:<br />
         {'&lt;div style="width:32px;height:32px;background-color:green"&gt;&lt;/div&gt;'}
         </ul>
         </li>
-        <br>
+        <br />
 
     <a name="devStateStyle"></a>
-    <li>devStateStyle<br>
-        Specify an HTML style for the given device, e.g.:<br>
+    <li>devStateStyle<br />
+        Specify an HTML style for the given device, e.g.:<br />
         <ul>
-        attr sensor devStateStyle style="text-align:left;;font-weight:bold;;"<br>
+        attr sensor devStateStyle style="text-align:left;;font-weight:bold;;"<br />
         </ul>
         </li>
-        <br>
+        <br />
 
     <a name="webCmd"></a>
-    <li>webCmd<br>
+    <li>webCmd<br />
         Colon separated list of commands to be shown in the room overview for a
         certain device.  Has no effect on smallscreen devices, see the
-        devStateIcon command for an alternative.<br>
+        devStateIcon command for an alternative.<br />
         Example:
         <ul>
-          attr lamp webCmd on:off:on-for-timer 10<br>
+          attr lamp webCmd on:off:on-for-timer 10<br />
         </ul>
-        <br>
+        <br />
 
         The first specified command is looked up in the "set device ?" list
         (see the <a href="#setList">setList</a> attribute for dummy devices).
@@ -3068,25 +3074,25 @@ FW_widgetOverride($$)
         by a comma separated list), then a different widget will be displayed.
         See also the widgetOverride attribute below. Examples:
         <ul>
-          define d1 dummy<br>
-          attr d1 webCmd state<br>
-          attr d1 setList state:on,off<br>
-          define d2 dummy<br>
-          attr d2 webCmd state<br>
-          attr d2 setList state:slider,0,1,10<br>
-          define d3 dummy<br>
-          attr d3 webCmd state<br>
-          attr d3 setList state:time<br>
+          define d1 dummy<br />
+          attr d1 webCmd state<br />
+          attr d1 setList state:on,off<br />
+          define d2 dummy<br />
+          attr d2 webCmd state<br />
+          attr d2 setList state:slider,0,1,10<br />
+          define d3 dummy<br />
+          attr d3 webCmd state<br />
+          attr d3 setList state:time<br />
         </ul>
-        If the command is state, then the value will be used as a command.<br>
+        If the command is state, then the value will be used as a command.<br />
         Note: this is an attribute for the displayed device, not for the FHEMJQWEB
         instance.
         </li>
-        <br>
+        <br />
 
 
     <a name="widgetOverride"></a>
-    <li>widgetOverride<br>
+    <li>widgetOverride<br />
         Space spearate list of name:modifier pairs, to override the widget
         for a set/get/attribute specified by the module author.
         <ul>
@@ -3110,62 +3116,62 @@ FW_widgetOverride($$)
         If this attribute is specified for a FHEMJQWEB instance, then it is
         applied to all devices shown. Examples:
         <ul>
-          attr FS20dev widgetOverride on-till:time<br>
-          attr WEB widgetOverride room:textField<br>
+          attr FS20dev widgetOverride on-till:time<br />
+          attr WEB widgetOverride room:textField<br />
         </ul>
         </li>
-        <br>
+        <br />
 
      <a name="column"></a>
-     <li>column<br>
+     <li>column<br />
        Allows to display more than one column per room overview, by specifying
-       the groups for the columns. Example:<br>
+       the groups for the columns. Example:<br />
        <ul><code>
          attr WEB column LivingRoom:FS20,notify|FHZ,notify DiningRoom:FS20|FHZ
        </code></ul>
        In this example in the LivingRoom the FS20 and the notify group is in
-       the first column, the FHZ and the notify in the second.<br>
+       the first column, the FHZ and the notify in the second.<br />
        Note: some elements like SVG plots and readingsGroup can only be part of
        a column if they are part of a <a href="#group">group</a>.
        </li>
 
      <a name="closeConn"></a>
-     <li>closeConn<br>
+     <li>closeConn<br />
         If set, a TCP Connection will only serve one HTTP request. Seems to
         solve problems for certain hardware combinations like slow
         FHEM-Server, and iPad/iPhone as Web-client.
-        </li><br>
+        </li><br />
 
      <a name="CssFiles"></a>
-     <li>CssFiles<br>
+     <li>CssFiles<br />
         Space separated list of .css files to be included. The filenames
         are relative to the www2 directory. Example:
         <ul><code>
           attr WEB CssFiles pgm2/mystyle.css
         </code></ul>
-        </li><br>
+        </li><br />
 
      <a name="JavaScripts"></a>
-     <li>JavaScripts<br>
+     <li>JavaScripts<br />
         Space separated list of JavaScript files to be included. The filenames
         are relative to the www2 directory.  For each file an additional
         user-settable FHEMJQWEB attribute will be created, to pass parameters to
         the script. The name of this additional attribute gets the Param
         suffix,  directory and the fhem_ prefix will be deleted. Example:
         <ul><code>
-          attr WEB JavaScripts codemirror/fhem_codemirror.js<br>
+          attr WEB JavaScripts codemirror/fhem_codemirror.js<br />
           attr WEB codemirrorParam { "theme":"blackboard", "lineNumbers":true }
         </code></ul>
-        </li><br>
+        </li><br />
 
      <a name="csrfToken"></a>
-     <li>csrfToken<br>
+     <li>csrfToken<br />
         If set, FHEMJQWEB requires the value of this attribute as fwcsrf
         Parameter for each command. If the value is random, then a random
         number will be generated on each FHEMJQWEB start. It is used as
         countermeasure for Cross Site Resource Forgery attacks.
         Default is not active.
-        </li><br>
+        </li><br />
 
 
     </ul>
@@ -3180,7 +3186,7 @@ FW_widgetOverride($$)
 <ul>
   FHEMJQWEB ist das default WEB-Frontend, es implementiert auch einen einfachen
   Webserver (optional mit Basic-Auth und HTTPS).
-  <br> <br>
+  <br /> <br />
 
   <a name="FHEMJQWEBdefine"></a>
   <b>Define</b>
