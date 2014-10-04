@@ -693,7 +693,7 @@ FW_answerCall($)
                       "onload=\"FW_delayedStart()\"" : "";
   my $csrf= ($FW_CSRF ? "fwcsrf='$defs{$FW_wname}{CSRFTOKEN}'" : "");
   FW_pO "</head>\n<body $csrf $onload>";
-  FW_pO "<div data-role=\"page\" id=\"infoPage\" data-theme=\"b\">";
+  FW_pO "<div data-role=\"page\" id=\"infoPage\" data-theme=\"a\">";
 
   if($FW_activateInform) {
     $cmd = "style eventMonitor $FW_activateInform";
@@ -1207,6 +1207,7 @@ FW_roomOverview($)
         if($idx<int(@list1)-1) {
           FW_pO "<div class=\"room roomBlock$tblnr\" data-role=\"collapsible\" data-collapsed=\"false\" data-theme=\"a\" data-content-theme=\"a\">";
 		  FW_pO "<h3>Rooms</h3>" if($idx>0 && $idx+11 < @list1);
+		  FW_pO "<h3>Actions</h3>" if($tblnr == 1);
 		  FW_pO "<h3>Other</h3>" if($tblnr == 3);
 		  FW_pO "<ul data-role=\"listview\" data-theme=\"c\" data-dividertheme=\"d\">";
           $tblnr++;
@@ -1214,7 +1215,7 @@ FW_roomOverview($)
 
       } else {
 		# FW_pO "<li>";
-        FW_pF "<li%s>", $l1 eq $FW_room ? " class=\"sel\"" : "";
+        FW_pF "<li%s>", $l1 eq $FW_room ? " data-theme=\"a\" " : "";
 
         # image tag if we have an icon, else empty
         my $icoName = "ico$l1";
@@ -1269,7 +1270,7 @@ FW_showRoom()
 
   FW_pO "<form method=\"$FW_formmethod\" ".
                 "action=\"$FW_ME\" autocomplete=\"off\">";
-  FW_pO "<div id=\"content\" room=\"$FW_room\">";
+  FW_pO "<div id=\"content\" room=\"$FW_room\" data-role=\"content\" data-theme=\"a\">";
   FW_pO "<div class=\"roomoverview\">";  # Need for equal width of subtables
 
   my $rf = ($FW_room ? "&amp;room=$FW_room" : ""); # stay in the room
@@ -1310,7 +1311,7 @@ FW_showRoom()
 
       #################
       # Check if there is a device of this type in the room
-      FW_pO "\n<div><div class=\"devType\">$g</div></div>";
+      FW_pO "\n<div class=\"devType\">$g</div>";
       FW_pO "<div class=\"jhmarker_2500\">";
       FW_pO "<div class=\"block wide\" id=\"TYPE_$g\">";
 
@@ -1663,7 +1664,7 @@ FW_style($$)
       next if($file =~ m/svg_/);
       $file =~ s/style.css//;
       $file = "default" if($file eq "");
-      FW_pO "<tr class=\"jhmarker_3150 " . ($row?"odd":"even") . "\">";
+      FW_pO "<tr class=\"jh_marker_3150 " . ($row?"odd":"even") . "\">";
       FW_pH "cmd=style set $file", "$file", 1;
       FW_pO "</tr>";
       $row = ($row+1)%2;
@@ -1826,8 +1827,11 @@ FW_pH(@)
 
   #actually 'div' should be removed if no class is defined
   #  as I can't check all code for consistancy I add nonl instead
-  $class = ($class)?" class=\"$class\"":"";
-  $ret = "<div$class>$ret</div>" if (!$nonl);
+  if($class)
+  {
+	$class = "class=\"jhmarker_e33 $class\"";
+  }
+  $ret = "<div $class>$ret</div>" if (!$nonl && $class);
   $ret = "$ret" if($td);
   return $ret if($doRet);
   FW_pO $ret;
@@ -1869,7 +1873,7 @@ FW_makeImage(@)
 
   $txt = $name if(!defined($txt));
   $class = "" if(!$class);
-  $class = "$class $name";
+  $class = "$class $name" if($name ne "");
   $class =~ s/\./_/g;
   $class =~ s/@/ /g;
 
@@ -1899,8 +1903,16 @@ FW_makeImage(@)
       return $name;
     }
   } else {
-    $class = "class='$class'" if($class);
-    return "<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />";
+	my $status = $class;
+	# trim it!
+	$status =~ s/^\s+//;
+	$status =~ s/\s+$//;
+	my $switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\">Off</option><option value=\"on\">On</option></select>";
+	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\" selected>Off</option><option value=\"on\">On</option></select>" if($status eq 'off');	
+	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\">Off</option><option value=\"on\" selected>On</option></select>" if($status eq 'on');
+	$switch = "$switch <div style=\"display: none;\" class=\"jhdebuginfo\">switch is '$status' </div>";
+    # $switch = "$switch <img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />";
+	return $switch;
   }
 }
 
@@ -2161,7 +2173,7 @@ FW_makeEdit($$$)
   FW_pO   "<div class=\"dval\" id=\"disp\">$eval</div>";
   FW_pO  "</div>";
 
-  FW_pO  "</tr><tr class=\"jhmarker_3600\"><div colspan=\"2\">";
+  FW_pO  "</tr><tr class=\"jhmarker_3600\"><div class=\"jhmarker_e32\">";
   FW_pO   "<div id=\"edit\" style=\"display:none\">";
   FW_pO   "<form method=\"$FW_formmethod\">";
   FW_pO       FW_hidden("detail", $name);
@@ -2496,7 +2508,7 @@ FW_timepickerFn()
   my $cv = ReadingsVal($d, $cmd, Value($d));
   $cmd = "" if($cmd eq "state");
   my $c = "\"$FW_ME?cmd=set $d $cmd %$srf\"";
-  return "<div>".
+  return "<div class=\"jhmarker_e2\">".
             "<input name='time.$d' value='$cv' type='text' readonly size='5'>".
             "<input type='button' value='+' onclick='FW_timeCreate(this,$c)'>".
           "</div>";
@@ -2554,7 +2566,7 @@ FW_textFieldFn($$$$)
 
   my $c = "$FW_ME?XHR=1&cmd=setreading $d $cmd %$srf";
   return '<td align="center">'.
-           "<div>$cmd:<input id='textField.$d$id' type='text' value='$cv' ".
+           "<div class=\"jhmarker_e3\">$cmd:<input id='textField.$d$id' type='text' value='$cv' ".
                         "onChange='textField_setText(this,\"$c\")'></div>".
          '</td>';
 }
