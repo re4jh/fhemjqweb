@@ -19,7 +19,6 @@ body {
 #menu {
   margin-left: 1%;
   position: absolute;
-  width: 15%;
 }
 
 #console {
@@ -338,4 +337,22 @@ div#menu_bar ul {
   list-style: none outside none;
   margin: 0;
   padding: 0;
+}
+
+.devType {
+  float: left;
+  width: 15%;
+}
+
+div.block.wide
+{
+	clear: both;
+}
+
+div#TYPE_structure div.col1,
+div#TYPE_structure div.col2,
+div#TYPE_structure div.col3
+{
+	width: 33%;
+	float: left;
 }
