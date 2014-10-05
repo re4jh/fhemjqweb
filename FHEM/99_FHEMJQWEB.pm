@@ -909,13 +909,13 @@ FW_makeTable($$$@)
         # if possible provide som links
         if ($n eq "room"){
           FW_pO "<td class=\"jhmarker_0700\"><div class=\"dval\">".
-                join(",", map { FW_pH("room=$_",$_,0,"",1,1) } split(",",$val)).
+                join(",", map { FW_pH("room=$_",$_,0,"",1,1,0) } split(",",$val)).
                 "</div></td>";
 
         } elsif ($n eq "webCmd"){
           my $lc = "detail=$name&cmd.$name=set $name";
           FW_pO "<td class=\"jhmarker_0800\"><div name=\"$name-$n\" class=\"dval\">".
-                  join(":", map {FW_pH("$lc $_",$_,0,"",1,1)} split(":",$val) ).
+                  join(":", map {FW_pH("$lc $_",$_,0,"",1,1,0)} split(":",$val) ).
                 "</div></td>";
 
         } elsif ($n =~ m/^fp_(.*)/ && $defs{$1}){ #special for Floorplan
@@ -924,7 +924,7 @@ FW_makeTable($$$@)
         } else {
            FW_pO "<td class=\"jhmarker_0900\"><div class=\"dval\">".
                    join(",", map { ($_ ne $name && $defs{$_}) ?
-                     FW_pH( "detail=$_", $_ ,0,"",1,1) : $_ } split(",",$val)).
+                     FW_pH( "detail=$_", $_ ,0,"",1,1,0) : $_ } split(",",$val)).
                  "</div></td>";
         }
       }
@@ -1358,7 +1358,7 @@ FW_showRoom()
               FW_pO $htmlTxt;
 
             } else {
-              FW_pH "cmd.$d=set $d $cmd$rf", $cmd, 1, "col3";
+              FW_pH "cmd.$d=set $d $cmd$rf", $cmd, 1, "col3", 0, 0, 1;
             }
           }
         }
@@ -1664,7 +1664,7 @@ FW_style($$)
       next if($file =~ m/svg_/);
       $file =~ s/style.css//;
       $file = "default" if($file eq "");
-      FW_pO "<tr class=\"jh_marker_3150 " . ($row?"odd":"even") . "\">";
+      FW_pO "<tr class=\"jh_marker_ " . ($row?"odd":"even") . "\">";
       FW_pH "cmd=style set $file", "$file", 1;
       FW_pO "</tr>";
       $row = ($row+1)%2;
@@ -1812,7 +1812,7 @@ FW_pO(@)
 sub
 FW_pH(@)
 {
-  my ($link, $txt, $td, $class, $doRet,$nonl) = @_;
+  my ($link, $txt, $td, $class, $doRet,$nonl, $button) = @_;
   my $ret;
 
   $link = ($link =~ m,^/,) ? "$link$FW_CSRF" : "$FW_ME$FW_subdir?$link$FW_CSRF";
@@ -1821,8 +1821,10 @@ FW_pH(@)
   # Known issue: the pointer won't change
   if($FW_ss || $FW_tp) { 
     $ret = "<a onClick=\"location.href='$link'\">$txt</a>";
+    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">$txt</a>"  if($button);;
   } else {
     $ret = "<a href=\"$link\">$txt</a>";
+    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">$txt</a>" if($button);
   }
 
   #actually 'div' should be removed if no class is defined
@@ -1911,7 +1913,7 @@ FW_makeImage(@)
 	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\" selected>Off</option><option value=\"on\">On</option></select>" if($status eq 'off');	
 	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\">Off</option><option value=\"on\" selected>On</option></select>" if($status eq 'on');
 	$switch = "$switch <div style=\"display: none;\" class=\"jhdebuginfo\">switch is '$status' </div>";
-    # $switch = "$switch <img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />";
+    $switch = "$switch <img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />" if($status ne 'on' && $status ne 'off');
 	return $switch;
   }
 }
