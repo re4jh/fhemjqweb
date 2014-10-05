@@ -26,7 +26,7 @@ function FW_cmd(arg) /* see also FW_devState */
   req.send(null);
   req.onreadystatechange = function () {
     if (req.readyState == 4) FW_errmsg(req.responseText, 5000);
-	$.mobile.changePage(document.URL, { reloadPage: true});
+	$.mobile.changePage(document.URL, { reloadPage: true, changeHash:true, dataUrl:document.URL });	 
   }
   
 }
