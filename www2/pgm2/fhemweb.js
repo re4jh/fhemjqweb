@@ -176,6 +176,7 @@ function FW_replaceLinks() {
 			if($(this).attr('href')===undefined && $(this).attr('onClick').match(/FW_cmd\([^=]*=.*\)$/) && $(this).children('select').length>0)
 			{
 				$(this).children('select').attr('onChange',  $(this).attr('onClick'));
+				$(this).children('select').unwrap();
 				$(this).children('img').hide();
 			}
 	});  
