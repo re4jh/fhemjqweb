@@ -1311,9 +1311,9 @@ FW_showRoom()
 
       #################
       # Check if there is a device of this type in the room
-      FW_pO "\n<div class=\"devType\">$g</div>";
-      FW_pO "<div class=\"jhmarker_2500\">";
-      FW_pO "<div class=\"block wide\" id=\"TYPE_$g\">";
+      FW_pO "\n<div class=\"jhmarker_2500\" data-collapsed=\"false\" data-role=\"collapsible\" data-theme=\"a\" data-content-theme=\"a\">";
+      FW_pO "\n<h3 class=\"devType\">$g</h3>";
+      FW_pO "\n<div class=\"block wide\" id=\"TYPE_$g\">";
 
       foreach my $d (sort { lc(AttrVal($a,"sortby",AttrVal($a,"alias",$a))) cmp
                             lc(AttrVal($b,"sortby",AttrVal($b,"alias",$b))) }
