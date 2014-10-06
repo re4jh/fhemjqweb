@@ -1820,20 +1820,16 @@ FW_pH(@)
   # Using onclick, as href starts safari in a webapp.
   # Known issue: the pointer won't change
   if($FW_ss || $FW_tp) { 
-    $ret = "<a onClick=\"location.href='$link'\">$txt</a>";
-    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">$txt</a>"  if($button);;
+    $ret = "<a onClick=\"location.href='$link'\" class=\"$class\">$txt</a>";
+    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>"  if($button);;
   } else {
-    $ret = "<a href=\"$link\">$txt</a>";
-    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">$txt</a>" if($button);
+    $ret = "<a href=\"$link\" class=\"$class\">$txt</a>";
+    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if($button);
   }
 
   #actually 'div' should be removed if no class is defined
   #  as I can't check all code for consistancy I add nonl instead
-  if($class)
-  {
-	$class = "class=\"jhmarker_e33 $class\"";
-  }
-  $ret = "<div $class>$ret</div>" if (!$nonl && $class);
+
   $ret = "$ret" if($td);
   return $ret if($doRet);
   FW_pO $ret;
