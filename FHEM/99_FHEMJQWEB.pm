@@ -909,13 +909,13 @@ FW_makeTable($$$@)
         # if possible provide som links
         if ($n eq "room"){
           FW_pO "<td class=\"jhmarker_0700\"><div class=\"dval\">".
-                join(",", map { FW_pH("room=$_",$_,0,"",1,1,0) } split(",",$val)).
+                join(",", map { FW_pH("room=$_",$_,0,"",1,0) } split(",",$val)).
                 "</div></td>";
 
         } elsif ($n eq "webCmd"){
           my $lc = "detail=$name&cmd.$name=set $name";
           FW_pO "<td class=\"jhmarker_0800\"><div name=\"$name-$n\" class=\"dval\">".
-                  join(":", map {FW_pH("$lc $_",$_,0,"",1,1,0)} split(":",$val) ).
+                  join(":", map {FW_pH("$lc $_",$_,0,"",1,0)} split(":",$val) ).
                 "</div></td>";
 
         } elsif ($n =~ m/^fp_(.*)/ && $defs{$1}){ #special for Floorplan
@@ -924,7 +924,7 @@ FW_makeTable($$$@)
         } else {
            FW_pO "<td class=\"jhmarker_0900\"><div class=\"dval\">".
                    join(",", map { ($_ ne $name && $defs{$_}) ?
-                     FW_pH( "detail=$_", $_ ,0,"",1,1,0) : $_ } split(",",$val)).
+                     FW_pH( "detail=$_", $_ ,0,"",1,0) : $_ } split(",",$val)).
                  "</div></td>";
         }
       }
@@ -1812,7 +1812,7 @@ FW_pO(@)
 sub
 FW_pH(@)
 {
-  my ($link, $txt, $td, $class, $doRet,$nonl, $button) = @_;
+  my ($link, $txt, $td, $class, $doRet, $button) = @_;
   my $ret;
 
   $link = ($link =~ m,^/,) ? "$link$FW_CSRF" : "$FW_ME$FW_subdir?$link$FW_CSRF";
@@ -1826,9 +1826,6 @@ FW_pH(@)
     $ret = "<a href=\"$link\" class=\"$class\">$txt</a>";
     $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if($button);
   }
-
-  #actually 'div' should be removed if no class is defined
-  #  as I can't check all code for consistancy I add nonl instead
 
   $ret = "$ret" if($td);
   return $ret if($doRet);
