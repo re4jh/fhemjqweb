@@ -1311,7 +1311,7 @@ FW_showRoom()
 
       #################
       # Check if there is a device of this type in the room
-      FW_pO "\n<div class=\"jhmarker_2500\" data-collapsed=\"false\" data-role=\"collapsible\" data-theme=\"a\" data-content-theme=\"a\">";
+      FW_pO "\n<div class=\"jhmarker_2500\" data-collapsed=\"true\" data-role=\"collapsible\" data-theme=\"a\" data-content-theme=\"a\">";
       FW_pO "\n<h3 class=\"devType\">$g</h3>";
       FW_pO "\n<div class=\"block wide\" id=\"TYPE_$g\">";
 
@@ -1328,7 +1328,8 @@ FW_showRoom()
         if($FW_hiddenroom{detail}) {
           FW_pO "<div class=\"jhmarker_2700\"><div class=\"col1\">$icon$devName</div></div>";
         } else {
-          FW_pH "detail=$d", "$icon$devName", 1, "col1" if(!$usuallyAtEnd{$d});
+          FW_pH "detail=$d", "$icon$devName", 1, "col1", 0, "normal-plus" if(!$usuallyAtEnd{$d});
+		  
         }
         $row++;
 
@@ -1358,7 +1359,7 @@ FW_showRoom()
               FW_pO $htmlTxt;
 
             } else {
-              FW_pH "cmd.$d=set $d $cmd$rf", $cmd, 1, "col3", 0, 0, 1;
+              FW_pH "cmd.$d=set $d $cmd$rf", $cmd, 1, "col3", 0, "mini";
             }
           }
         }
@@ -1821,10 +1822,14 @@ FW_pH(@)
   # Known issue: the pointer won't change
   if($FW_ss || $FW_tp) { 
     $ret = "<a onClick=\"location.href='$link'\" class=\"$class\">$txt</a>";
-    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>"  if($button);;
+    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" class=\"$class\">$txt</a>"  if($button eq "true" || $button eq "normal");
+    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>"  if($button eq "normal-plus");
+    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>"  if($button eq "mini");
   } else {
     $ret = "<a href=\"$link\" class=\"$class\">$txt</a>";
-    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if($button);
+    $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\">$txt</a>" if($button eq "true" || $button eq "normal");
+    $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>" if($button eq "normal-plus");
+    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if($button eq "mini");
   }
 
   $ret = "$ret" if($td);
