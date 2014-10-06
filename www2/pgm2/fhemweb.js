@@ -184,9 +184,6 @@ function FW_replaceLinks() {
 
 function FW_delayedStart() {
   setTimeout("FW_longpoll()", 100);
-	$( window ).load(function() {
-		FW_replaceLinks();
-	});  
 } /*************** LONGPOLL END **************/
 
 /*************** Select **************/
@@ -366,3 +363,9 @@ window.onbeforeunload = function (e) {
   FW_leaving = 1;
   return undefined;
 }
+
+/* JQMobile rerender after reload */
+$('body').live('pageshow',function(event){
+	FW_replaceLinks();
+});
+
