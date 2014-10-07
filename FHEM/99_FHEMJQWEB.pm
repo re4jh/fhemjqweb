@@ -1907,11 +1907,29 @@ FW_makeImage(@)
 	# trim it!
 	$status =~ s/^\s+//;
 	$status =~ s/\s+$//;
-	my $switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\">Off</option><option value=\"on\">On</option></select>";
-	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\" selected>Off</option><option value=\"on\">On</option></select>" if($status eq 'off');	
-	$switch = "<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\"><option value=\"off\">Off</option><option value=\"on\" selected>On</option></select>" if($status eq 'on');
-	$switch = "$switch <div style=\"display: none;\" class=\"jhdebuginfo\">switch is '$status' </div>";
-    $switch = "$switch <img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />" if($status ne 'on' && $status ne 'off');
+	my $switch = '';	
+	$switch = "\n<div style=\"display: none;\" class=\"jhdebuginfo\">switch is '$status' </div>";	
+	if ($status eq 'on' || $status eq 'off')
+	{
+		$switch = $switch . "\n<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\">\n\t<option value=\"off\" selected>Off</option>\n\t<option value=\"on\">On</option>\n</select>" if($status eq 'off');	
+		$switch = $switch .  "\n<select name=\"flip-1\" data-role=\"slider\" data-theme=\"a\">\n\t<option value=\"off\">Off</option>\n\t<option value=\"on\" selected>On</option>\n</select>" if($status eq 'on');
+	} elsif ($status eq 'Zoom-in')
+	{
+		$switch = $switch . '<div data-role="button" data-mini="true" data-icon="plus" data-theme="a" data-iconpos="notext"data-inline="true">Zoom In</div>';
+	} elsif ($status eq 'Zoom-out')
+	{
+		$switch = $switch . '<div data-role="button" data-mini="true" data-icon="minus" data-theme="a" data-iconpos="notext"data-inline="true">Zoom Out</div>';
+	} elsif ($status eq 'Prev')
+	{
+		$switch = $switch . '<div data-role="button" data-mini="true" data-icon="arrow-l" data-theme="a" data-iconpos="notext"data-inline="true">Previous</div>';
+	} elsif ($status eq 'Next')
+	{
+		$switch = $switch . '<div data-role="button" data-mini="true" data-icon="arrow-r" data-theme="a" data-iconpos="notext"data-inline="true">Next</div>';
+	}	else
+	{
+	    $switch = $switch . "\n<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />" if($status ne 'on' && $status ne 'off');
+	}
+	
 	return $switch;
   }
 }
