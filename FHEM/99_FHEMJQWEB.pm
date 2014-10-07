@@ -633,16 +633,11 @@ FW_answerCall($)
   FW_pO '<html xmlns="http://www.w3.org/1999/xhtml">';
   FW_pO "<head root=\"$FW_ME\">\n<title>$t</title>";
   FW_pO '<link rel="shortcut icon" href="'.FW_IconURL("favicon").'" />';
+  FW_pO '<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>';  
 
   # Enable WebApps
   if($FW_tp || $FW_ss) {
     my $icon = $FW_ME."/images/default/fhemicon_ios.png";
-    if($FW_ss) {
-       FW_pO '<meta name="viewport" '.
-                   'content="initial-scale=1.0,user-scalable=1"/>';
-    } elsif($FW_tp) {
-      FW_pO '<meta name="viewport" content="width=768"/>';
-    }
     FW_pO '<meta name="apple-mobile-web-app-capable" content="yes"/>';
     FW_pO '<link rel="apple-touch-icon" href="'.$icon.'"/>';
     FW_pO '<link rel="shortcut-icon"    href="'.$icon.'"/>';
@@ -993,7 +988,7 @@ FW_doDetail($)
       FW_pO "</table>";
     }
   }
-  FW_pO "<table class=\"jhmarker_1200\"><tr class=\"jhmarker_1300\"><td class=\"jhmarker_1400\">";
+  FW_pO "<div class=\"jhmarker_1200\">";
 
   if($modules{$t}{FW_detailFn}) {
     no strict "refs";
@@ -1038,7 +1033,7 @@ FW_doDetail($)
   FW_pO "</form>";
   FW_makeTableFromArray("Probably associated with", "assoc", @dob,);
 
-  FW_pO "</td></tr></table>";
+  FW_pO "</div>";
 
   FW_pH "cmd=style iconFor $d", "Select icon";
   FW_pH "cmd=style showDSI $d", "Extend devStateIcon";
@@ -1815,25 +1810,24 @@ FW_pH(@)
 {
   my ($link, $txt, $td, $class, $doRet, $button) = @_;
   my $ret;
-
-  $link = ($link =~ m,^/,) ? "$link$FW_CSRF" : "$FW_ME$FW_subdir?$link$FW_CSRF";
+  my $logfilename = $txt;
   
-  # Using onclick, as href starts safari in a webapp.
-  # Known issue: the pointer won't change
-  if($FW_ss || $FW_tp) { 
-    $ret = "<a onClick=\"location.href='$link'\" class=\"$class\">$txt</a>";
-    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" class=\"$class\">$txt</a>"  if($button eq "true" || $button eq "normal");
-    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>"  if($button eq "normal-plus");
-    $ret = "<a onClick=\"location.href='$link'\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>"  if($button eq "mini");
-  } else {
-    $ret = "<a href=\"$link\" class=\"$class\">$txt</a>";
-    $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\">$txt</a>" if($button eq "true" || $button eq "normal");
-    $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>" if($button eq "normal-plus");
-    $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if($button eq "mini");
+  if ($link =~ m/file=([^&]+)/)
+  {
+	$logfilename = $1;
   }
+  
+  $class= '' if (!defined($class));
 
-  $ret = "$ret" if($td);
-  return $ret if($doRet);
+  $link = ($link =~ m,^/,) ? "$link$FW_CSRF" : "$FW_ME$FW_subdir?$link$FW_CSRF";  
+  $ret = "<a href=\"$link\" class=\"$class\">$txt</a>";
+  $ret = "<a href=\"$link\" class=\"$class\" data-role=\"button\" data-icon=\"grid\">$logfilename</a>" if (defined($class) && $class eq 'dval');
+  $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\">$txt</a>" if(defined($button) && ($button eq "true" || $button eq "normal"));
+  $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>" if(defined($button) && $button eq "normal-plus");
+  $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if(defined($button) && $button eq "mini");
+
+  $ret = "$ret" if(defined($td) && $td);
+  return $ret if(defined($doRet) && $doRet);
   FW_pO $ret;
 }
 
