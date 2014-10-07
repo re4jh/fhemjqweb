@@ -17,8 +17,10 @@ body {
 }
 
 #menu {
-  margin-left: 1%;
-  position: absolute;
+  float: left;
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 90%;
 }
 
 #console {
@@ -31,14 +33,14 @@ body {
 #hdr {
   float: right;
   margin-right: 1%;
-  position: relative;
-  width: 80%;
+  width: 79%;
 }
 
 #content {
   float: right;
   margin-right: 1%;
   width: 79%;
+  padding: 0;
 }
 
 #errmsg {
@@ -361,3 +363,55 @@ div.roomoverview div.ui-collapsible-content > div > div > div
 	display: inline;
 }
 
+#infoPage > div#menuScrollArea {
+  float: left;
+  width: 20%;
+}
+
+div.SVGplot {
+  padding: 10px 15px;
+}
+
+/* Media Query Part */
+@media only screen and (max-width : 768px) {
+
+	#infoPage > div#menuScrollArea {
+	  float: left;
+	  width: 40%;
+	}
+
+	#hdr {
+	  float: right;
+	  margin-right: 1%;
+	  width: 59%;
+	}
+
+	#content {
+	  float: right;
+	  margin-right: 1%;
+	  width: 59%;
+	  padding: 0;
+	}		
+}
+
+@media only screen and (max-width : 768px) {
+
+	#infoPage > div#menuScrollArea {
+	  float: none;
+	  width: 100%;
+	}
+
+	#hdr {
+	  float: left;
+	  margin-left: 5%;
+	  margin-right: 5%;
+	  width: 90%;
+	}
+
+	#content {
+	  float: left;
+	  margin-left: 5%;
+	  margin-right: 5%;
+	  width: 90%;
+	}		
+}
