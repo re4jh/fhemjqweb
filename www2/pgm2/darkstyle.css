@@ -372,6 +372,10 @@ div.SVGplot {
   padding: 10px 15px;
 }
 
+table.FileLog.wide {
+  display: none;
+}
+
 /* Media Query Part */
 @media only screen and (max-width : 768px) {
 
@@ -394,7 +398,7 @@ div.SVGplot {
 	}		
 }
 
-@media only screen and (max-width : 768px) {
+@media only screen and (max-width : 480px) {
 
 	#infoPage > div#menuScrollArea {
 	  float: none;
