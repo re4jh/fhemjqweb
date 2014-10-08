@@ -47,7 +47,7 @@ sub FW_updateHashes();
 sub FW_visibleDevices(;$);
 sub FW_widgetOverride($$);
 
-use vars qw($FW_dir);     # base directory for web server
+use vars qw($FW_dir_jq);  # base directory for web server
 use vars qw($FW_icondir); # icon base directory
 use vars qw($FW_cssdir);  # css directory
 use vars qw($FW_gplotdir);# gplot directory
@@ -176,11 +176,11 @@ FHEMJQWEB_Initialize($)
                               "widgetOverride",  "sortby", "devStateStyle");
   InternalTimer(time()+60, "FW_closeOldClients", 0, 0);
 
-  $FW_dir      = "$attr{global}{modpath}/www2";
-  $FW_icondir  = "$FW_dir/images";
-  $FW_cssdir   = "$FW_dir/pgm2";
-  $FW_gplotdir = "$FW_dir/gplot";
-  if(opendir(DH, "$FW_dir/pgm2")) {
+  $FW_dir_jq      = "$attr{global}{modpath}/www2";
+  $FW_icondir  = "$FW_dir_jq/images";
+  $FW_cssdir   = "$FW_dir_jq/pgm2";
+  $FW_gplotdir = "$FW_dir_jq/gplot";
+  if(opendir(DH, "$FW_dir_jq/pgm2")) {
     @FW_fhemwebjs = sort grep /^fhemweb.*js$/, readdir(DH);
     closedir(DH);
   }
@@ -489,8 +489,8 @@ FW_answerCall($)
     if($file =~ m/^(.*)\.([^.]*)$/) {
       $file = $1; $ext = $2;
     }
-    my $ldir = "$FW_dir/$dir";
-    $ldir = "$FW_dir/pgm2" if($dir eq "css" || $dir eq "js"); # FLOORPLAN compat
+    my $ldir = "$FW_dir_jq/$dir";
+    $ldir = "$FW_dir_jq/pgm2" if($dir eq "css" || $dir eq "js"); # FLOORPLAN compat
     $ldir = "$attr{global}{modpath}/docs" if($dir eq "docs");
 
     if(-r "$ldir/$file.$ext") {                # no return for FLOORPLAN
@@ -2404,7 +2404,7 @@ FW_Get($@)
     return defined($icon) ? "$FW_icondir/$icon" : "no such icon";
 
   } elsif($arg eq "pathlist") {
-    return "web server root:      $FW_dir\n".
+    return "web server root:      $FW_dir_jq\n".
            "icon directory:       $FW_icondir\n".
            "css directory:        $FW_cssdir\n".
            "gplot directory:      $FW_gplotdir";
@@ -2436,7 +2436,7 @@ FW_Set($@)
     }
   }
   if($a[1] eq "clearSvgCache") {
-    my $cDir = "$FW_dir/SVGcache";
+    my $cDir = "$FW_dir_jq/SVGcache";
     if(opendir(DH, $cDir)) {
       map { my $n="$cDir/$_"; unlink($n) if(-f $n); } readdir(DH);;
       closedir(DH);
