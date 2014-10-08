@@ -367,5 +367,19 @@ window.onbeforeunload = function (e) {
 /* JQMobile rerender after reload */
 $('body').live('pageshow',function(event){
 	FW_replaceLinks();
+	JQM_collapse();
 });
+
+$('body').live('pageinit',function(event){
+	JQM_collapse();
+});
+
+function JQM_collapse()
+{
+	//Settings for Small Windows/Displays
+	if($(window).width()<=480)
+	{
+		$("[data-role=collapsible]").trigger("collapse");
+	}
+}
 
