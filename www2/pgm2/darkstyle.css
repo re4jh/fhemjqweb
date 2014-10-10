@@ -65,26 +65,28 @@ a:hover {
   width: 100%;
 }
 
-table.block {
+table.block,
+div.converted_table.block {
   border: 1px solid #ffffff;
   width: 100%;
   background: #333333;
   box-shadow: 5px 5px 5px #000;
 }
 
-table.block tr.odd {
+table.block tr.odd,
+div.converted_table > div.odd > span {
   background: #111111;
 }
 
+div.converted_table > div.del,
 table.block tr.sel {
   background: red;
 }
 
+div.converted_table,
 table {
   border-radius: 8px;
-  border-spacing: 0px;
-  padding-bottom: 6px;
-  padding-top: 6px;
+  border-spacing: 0;
 }
 
 div.room a {
@@ -346,21 +348,18 @@ div#menu_bar ul {
   width: 15%;
 }
 
-div.block.wide
-{
-	clear: both;
+div.block.wide {
+  clear: both;
 }
 
 div#content div.roomoverview > div.ui-collapsible ,
-div#content div.roomoverview > div.ui-collapsible  > h3
-{
-	width: 100%;
-	clear: both;
+div#content div.roomoverview > div.ui-collapsible  > h3 {
+  width: 100%;
+  clear: both;
 }
 
-div.roomoverview div.ui-collapsible-content > div > div > div
-{
-	display: inline;
+div.roomoverview div.ui-collapsible-content > div > div > div {
+  display: inline;
 }
 
 #infoPage > div#menuScrollArea {
@@ -372,50 +371,66 @@ div.SVGplot {
   padding: 10px 15px;
 }
 
-table.FileLog.wide {
-  display: none;
+/* converted tables */
+
+div.converted_table {
+  padding-top: 5px;
+}
+
+div.converted_table > div {
+  display: flex;
+  line-height: 150%;
+  clear: both;
+}
+
+div.converted_table > div > span {
+  float: left;
+}
+
+div.converted_table > div > span > div {
+  margin-left: 2%;
 }
 
 /* Media Query Part */
 @media only screen and (max-width : 768px) {
 
-	#infoPage > div#menuScrollArea {
-	  float: left;
-	  width: 40%;
-	}
+  #infoPage > div#menuScrollArea {
+    float: left;
+    width: 40%;
+  }
 
-	#hdr {
-	  float: right;
-	  margin-right: 1%;
-	  width: 59%;
-	}
+  #hdr {
+    float: right;
+    margin-right: 1%;
+    width: 59%;
+  }
 
-	#content {
-	  float: right;
-	  margin-right: 1%;
-	  width: 59%;
-	  padding: 0;
-	}		
+  #content {
+    float: right;
+    margin-right: 1%;
+    width: 59%;
+    padding: 0;
+  }
 }
 
 @media only screen and (max-width : 480px) {
 
-	#infoPage > div#menuScrollArea {
-	  float: none;
-	  width: 100%;
-	}
+  #infoPage > div#menuScrollArea {
+    float: none;
+    width: 100%;
+  }
 
-	#hdr {
-	  float: left;
-	  margin-left: 5%;
-	  margin-right: 5%;
-	  width: 90%;
-	}
+  #hdr {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 90%;
+  }
 
-	#content {
-	  float: left;
-	  margin-left: 5%;
-	  margin-right: 5%;
-	  width: 90%;
-	}		
+  #content {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 90%;
+  }
 }
