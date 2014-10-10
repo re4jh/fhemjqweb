@@ -857,7 +857,7 @@ FW_makeTable($$$@)
   $class =~ s/[^A-Za-z]/_/g;
   FW_pO "<div class='makeTable wide'>";
   FW_pO $title;
-  FW_pO "<table class=\"jhmarker_0100 block wide $class\">";
+  FW_pO "<table class=\"block wide $class\">";
   my $si = AttrVal("global", "showInternalValues", 0);
 
   my $row = 1;
@@ -872,7 +872,7 @@ FW_makeTable($$$@)
     my $r = ref($val);
     next if($r && ($r ne "HASH" || !defined($hash->{$n}{VAL})));
 
-    FW_pF "<div class=\"%s\">", ($row&1)?"odd":"even";
+    FW_pF "<tr class=\"%s\">", ($row&1)?"odd":"even";
     $row++;
 
     if($n eq "DEF" && !$FW_hiddenroom{input}) {
@@ -880,11 +880,11 @@ FW_makeTable($$$@)
 
     } else {
       if( $title eq "Attributes" ) {
-        FW_pO "<td class=\"jhmarker_0200\"><div class=\"dname\">".
+        FW_pO "<td><div class=\"dname\">".
                 "<a onClick='FW_querySetSelected(\"sel.attr$name\",\"$n\")'>".
               "$n</a></div></td>";
       } else {
-         FW_pO "<td class=\"jhmarker_0300\"><div class=\"dname\">$n</div></td>";
+         FW_pO "<td><div class=\"dname\">$n</div></td>";
       }
 
       if(ref($val)) { #handle readings
@@ -892,45 +892,47 @@ FW_makeTable($$$@)
         $v = FW_htmlEscape($v);
         if($FW_ss) {
           $t = ($t ? "<br><div class=\"tiny\">$t</div>" : "");
-          FW_pO "<td class=\"jhmarker_0400\"><div class=\"dval\">$v$t</div></td>";
+          FW_pO "<td><div class=\"dval\">$v$t</div></td>";
         } else {
           $t = "" if(!$t);
-          FW_pO "<td class=\"jhmarker_0500\"><div informId=\"$name-$n\">$v</div></td>";
-          FW_pO "<td class=\"jhmarker_0600\"><div informId=\"$name-$n-ts\">$t</div></td>";
+          FW_pO "<td><div informId=\"$name-$n\">$v</div></td>";
+          FW_pO "<td><div informId=\"$name-$n-ts\">$t</div></td>";
         }
       } else {
         $val = FW_htmlEscape($val);
 
         # if possible provide som links
         if ($n eq "room"){
-          FW_pO "<td class=\"jhmarker_0700\"><div class=\"dval\">".
-                join(",", map { FW_pH("room=$_",$_,0,"",1,0) } split(",",$val)).
+          FW_pO "<td><div class=\"dval\">".
+                join(",", map { FW_pH("room=$_",$_,0,"",1,1) } split(",",$val)).
                 "</div></td>";
 
         } elsif ($n eq "webCmd"){
           my $lc = "detail=$name&cmd.$name=set $name";
-          FW_pO "<td class=\"jhmarker_0800\"><div name=\"$name-$n\" class=\"dval\">".
-                  join(":", map {FW_pH("$lc $_",$_,0,"",1,0)} split(":",$val) ).
+          FW_pO "<td><div name=\"$name-$n\" class=\"dval\">".
+                  join(":", map {FW_pH("$lc $_",$_,0,"",1,1)} split(":",$val) ).
                 "</div></td>";
 
         } elsif ($n =~ m/^fp_(.*)/ && $defs{$1}){ #special for Floorplan
           FW_pH "detail=$1", $val,1;
 
         } else {
-           FW_pO "<td class=\"jhmarker_0900\"><div class=\"dval\">".
+           FW_pO "<td><div class=\"dval\">".
                    join(",", map { ($_ ne $name && $defs{$_}) ?
-                     FW_pH( "detail=$_", $_ ,0,"",1,0) : $_ } split(",",$val)).
+                     FW_pH( "detail=$_", $_ ,0,"",1,1) : $_ } split(",",$val)).
                  "</div></td>";
         }
       }
 
     }
-
+	
+	FW_pO "<td>" if($cmd && !$FW_ss);
     FW_pH "cmd.$name=$cmd $name $n&amp;detail=$name", $cmd, 1
         if($cmd && !$FW_ss);
+	FW_pO "</td>" if($cmd && !$FW_ss);
     FW_pO "</tr>";
   }
-  FW_pO "</div>";
+  FW_pO "</table>";
   FW_pO "</div>";
 
 }
@@ -1034,11 +1036,11 @@ FW_doDetail($)
   FW_makeTableFromArray("Probably associated with", "assoc", @dob,);
 
   FW_pO "</div>";
-
+  FW_pO "\n<div data-role=\"controlgroup\" data-type=\"horizontal\" style=\"clear: both;\" >";
   FW_pH "cmd=style iconFor $d", "Select icon";
   FW_pH "cmd=style showDSI $d", "Extend devStateIcon";
   FW_pH "$FW_ME/docs/commandref.html#${t}", "Device specific help";
-  FW_pO "<br /><br />";
+  FW_pO "</div>";
   FW_pO "</div>";
 
 }
@@ -1265,7 +1267,11 @@ FW_showRoom()
 
   FW_pO "<form method=\"$FW_formmethod\" ".
                 "action=\"$FW_ME\" autocomplete=\"off\">";
-  FW_pO "<div id=\"content\" room=\"$FW_room\" data-role=\"content\" data-theme=\"a\">";
+  FW_pO "\n<div id=\"content\" room=\"$FW_room\" data-role=\"content\" data-theme=\"a\">";
+  FW_pO "\n<div data-role=\"header\"><h1>$FW_room</h1></div>";
+  
+  
+  
   FW_pO "<div class=\"roomoverview\">";  # Need for equal width of subtables
 
   my $rf = ($FW_room ? "&amp;room=$FW_room" : ""); # stay in the room
@@ -1306,9 +1312,12 @@ FW_showRoom()
 
       #################
       # Check if there is a device of this type in the room
-      FW_pO "\n<div class=\"jhmarker_2500\" data-collapsed=\"true\" data-role=\"collapsible\" data-theme=\"a\" data-content-theme=\"a\">";
+	  my $collapsed = 'true';
+	  $collapsed = 'false' if ($g eq 'switch');
+	  
+      FW_pO "\n<div class=\"jhmarker_2500\" data-collapsed=\"$collapsed\" data-role=\"collapsible\" data-theme=\"a\" data-content-theme=\"a\">";
       FW_pO "\n<h3 class=\"devType\">$g</h3>";
-      FW_pO "\n<div class=\"block wide\" id=\"TYPE_$g\">";
+      FW_pO "\n<div class=\"block wide TYPE_$g\">";
 
       foreach my $d (sort { lc(AttrVal($a,"sortby",AttrVal($a,"alias",$a))) cmp
                             lc(AttrVal($b,"sortby",AttrVal($b,"alias",$b))) }
@@ -1825,6 +1834,9 @@ FW_pH(@)
   $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\">$txt</a>" if(defined($button) && ($button eq "true" || $button eq "normal"));
   $ret = "<a href=\"$link\" data-role=\"button\" class=\"$class\" data-icon=\"plus\">$txt</a>" if(defined($button) && $button eq "normal-plus");
   $ret = "<a href=\"$link\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" class=\"$class\">$txt</a>" if(defined($button) && $button eq "mini");
+  $ret = "<a href=\"$link\" data-role=\"button\" data-mini=\"true\" class=\"$class\">$txt</a>" if(defined($txt) && $txt eq "Select icon");
+  $ret = "<a href=\"$link\" data-role=\"button\" data-mini=\"true\" class=\"$class\">$txt</a>" if(defined($txt) && $txt eq "Extend devStateIcon");
+  $ret = "<a href=\"$link\" data-role=\"button\" data-mini=\"true\" class=\"$class\">$txt</a>" if(defined($txt) && $txt eq "Device specific help");
 
   $ret = "$ret" if(defined($td) && $td);
   return $ret if(defined($doRet) && $doRet);
@@ -1921,7 +1933,7 @@ FW_makeImage(@)
 		$switch = $switch . '<div data-role="button" data-mini="true" data-icon="arrow-r" data-theme="a" data-iconpos="notext"data-inline="true">Next</div>';
 	}	else
 	{
-	    $switch = $switch . "\n<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />" if($status ne 'on' && $status ne 'off');
+	    $switch = $switch . "\n<img $class src=\"$FW_ME/images/$p\" alt=\"$txt\" title=\"$txt\" />";
 	}
 	
 	return $switch;
@@ -2186,7 +2198,7 @@ FW_makeEdit($$$)
   FW_pO  "</div>";
 
   FW_pO  "</tr><tr class=\"jhmarker_3600\"><div class=\"jhmarker_e32\">";
-  FW_pO   "<div id=\"edit\" style=\"display:none\">";
+  FW_pO   "<div id=\"edit\">";
   FW_pO   "<form method=\"$FW_formmethod\">";
   FW_pO       FW_hidden("detail", $name);
   FW_pO       FW_hidden("fwcsrf", $defs{$FW_wname}{CSRFTOKEN}) if($FW_CSRF);
