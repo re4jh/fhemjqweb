@@ -47,10 +47,10 @@ sub FW_updateHashes();
 sub FW_visibleDevices(;$);
 sub FW_widgetOverride($$);
 
-use vars qw($FW_dir_jq);  # base directory for web server
-use vars qw($FW_icondir); # icon base directory
-use vars qw($FW_cssdir);  # css directory
-use vars qw($FW_gplotdir);# gplot directory
+use vars qw($FW_dir_jq);     # base directory for web server
+use vars qw($FW_icondir_jq); # icon base directory
+use vars qw($FW_cssdir_jq);  # css directory
+use vars qw($FW_gplotdir_jq);# gplot directory
 use vars qw($MW_dir);     # moddir (./FHEM), needed by edit Files in new
                           # structure
 
@@ -61,25 +61,25 @@ use vars qw($FW_tp);      # is touchpad (iPad / etc)
 use vars qw($FW_sp);      # stylesheetPrefix
 
 # global variables, also used by 97_GROUP/95_VIEW/95_FLOORPLAN
-use vars qw(%FW_types);   # device types,
-use vars qw($FW_RET);     # Returned data (html)
-use vars qw($FW_RETTYPE); # image/png or the like
-use vars qw($FW_wname);   # Web instance
-use vars qw($FW_subdir);  # Sub-path in URL, used by FLOORPLAN/weblink
-use vars qw(%FW_pos);     # scroll position
-use vars qw($FW_cname);   # Current connection name
+use vars qw(%FW_types);      # device types,
+use vars qw($FW_RET);        # Returned data (html)
+use vars qw($FW_RETTYPE);    # image/png or the like
+use vars qw($FW_wname);      # Web instance
+use vars qw($FW_subdir);     # Sub-path in URL, used by FLOORPLAN/weblink
+use vars qw(%FW_pos);        # scroll position
+use vars qw($FW_cname);      # Current connection name
 use vars qw(%FW_hiddenroom); # hash of hidden rooms, used by weblink
-use vars qw($FW_plotmode);# Global plot mode (WEB attribute), used by SVG
-use vars qw($FW_plotsize);# Global plot size (WEB attribute), used by SVG
-use vars qw(%FW_webArgs); # all arguments specified in the GET
-use vars qw(@FW_fhemwebjs);# List of fhemweb*js scripts to load
-use vars qw($FW_detail);  # currently selected device for detail view
-use vars qw($FW_cmdret);  # Returned data by the fhem call
-use vars qw($FW_room);    # currently selected room
+use vars qw($FW_plotmode);   # Global plot mode (WEB attribute), used by SVG
+use vars qw($FW_plotsize);   # Global plot size (WEB attribute), used by SVG
+use vars qw(%FW_webArgs);    # all arguments specified in the GET
+use vars qw(@FW_fhemwebjs);  # List of fhemweb*js scripts to load
+use vars qw($FW_detail);     # currently selected device for detail view
+use vars qw($FW_cmdret);     # Returned data by the fhem call
+use vars qw($FW_room);       # currently selected room
 use vars qw($FW_formmethod);
 use vars qw(%FW_visibleDeviceHash);
 use vars qw(@FW_httpheader); # HTTP header, line by line
-use vars qw($FW_userAgent); # user agent string
+use vars qw($FW_userAgent);  # user agent string
 
 $FW_formmethod = "post";
 
